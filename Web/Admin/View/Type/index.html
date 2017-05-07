@@ -1,0 +1,76 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+
+<block name="content">
+<section class="Hui-article-box">
+	<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> <a href="{{:U('Index/index')}}" class="maincolor">首页</a> <span class="c-gray en">&gt;</span> 分类列表<a class="btn btn-refresh btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+	<div class="Hui-article">
+		<article class="cl pd-20">
+			<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onclick="layer_show('添加分类','{{:U('Type/add')}}','500','300')" class="btn btn-primary radius"><i class="Hui-iconfont">&#xe600;</i> 添加分类</a></span> </div>
+			<div class="mt-20">
+				<table class="table table-border table-bordered table-hover table-bg table-sort">
+					<thead>
+						<tr class="text-c">
+							<th>ID</th>
+							<th width="200">分类名</th>
+							<th>父类pid</th>
+							<th>path路径</th>
+							<th>添加时间</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+					
+					<foreach name="list" item="v">
+						<tr class="text-c">
+							<td>{{$v['id']}}</td>
+							<td style="text-align:left">{{$v['name']}}</td>
+							<td>{{$v['pid']}}</td>
+							<td>{{$v['path']}}</td>
+							<td>{{$v['create_time']}}</td>
+							<td class="td-manage">
+								<a title="编辑" href="javascript:;" onclick="layer_show('编辑','{{:U('Type/edit',['id'=>$v['id']])}}','500','300')" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6df;</i></a> 
+								<a title="删除" href="javascript:;" onclick="type_del(this,{{$v['id']}})" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a>
+							</td>
+						</tr>
+					</foreach>
+
+					</tbody>
+				</table>
+			</div>
+		</article>
+	</div>
+</section>
+</block>
+
+
+<block name="js">
+<!-- 引入表格的js插件 -->
+<script type="text/javascript" src="__PUBLIC__/admin/lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
+
+<script type="text/javascript">
+$(function(){
+	$('.table-sort').dataTable({
+    	paging: 	false, 	//禁止分页
+    	ordering:  	false,	//禁止排序
+	});
+
+	$('td:contains(┖-----)').css('color', '#5A98DE');
+});
+
+/*分类删除*/
+function type_del(obj,id){
+	layer.confirm('确认要删除吗？',function(index){
+		$.post('{{:U("Type/del")}}', 'id='+id, function(res){
+			if (res.status == 1) {
+				$(obj).parents("tr").remove();
+				layer.msg(res.info,{icon:6,time:1000});
+			} else {
+				layer.msg(res.info,{icon:5,time:1000});
+			}
+		})
+	});
+}
+</script>
+</block>

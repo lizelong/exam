@@ -1,0 +1,61 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+
+<block name="content">
+<section class="Hui-article-box">
+	<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> <a href="{{:U('Index/index')}}" class="maincolor">首页</a> <span class="c-gray en">&gt;</span> 考试列表<a class="btn btn-refresh btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+	<div class="Hui-article">
+		<article class="cl pd-20">
+			<div class="mt-20">
+				<table class="table table-border table-bordered table-hover table-bg table-sort">
+					<thead>
+						<tr class="text-c">
+							<th>ID</th>
+							<th>考试班级</th>
+							<th>考试描述</th>
+							<th>考试类型</th>
+							<th>总分/总个数</th>
+							<th>考试分数(百分制)</th>
+							<th>考试时间</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+					
+					<foreach name="list" item="v">
+						<tr class="text-c">
+							<td>{{$v['id']}}</td>
+							<td>{{$v['class_name']}}</td>
+							<td>{{$v['des']}}</td>
+							<td>{{$v['type']}}</td>
+							<td>{{$v['total']}}</td>
+							<td>{{$v['is_score']==1?'国家机密':$v['total_h']}}</td>
+							<td>{{$v['create_time']}}</td>
+							<td class="td-manage">
+								<a title="查看详情" onclick="layer_show('考试详情', '{{:U('Tests/info', ['tests_id'=>$v['id']])}}')" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe665;</i></a> 
+							</td>
+						</tr>
+					</foreach>
+
+					</tbody>
+				</table>
+			</div>
+		</article>
+	</div>
+</section>
+</block>
+
+
+<block name="js">
+<!-- 引入表格的js插件 -->
+<script type="text/javascript" src="__PUBLIC__/admin/lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
+
+<script type="text/javascript">
+$(function(){
+	$('.table-sort').dataTable({
+		"aaSorting": [[ 0, "desc" ]],//默认第几个排序
+	});
+});
+</script>
+</block>

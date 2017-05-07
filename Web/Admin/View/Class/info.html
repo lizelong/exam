@@ -1,0 +1,64 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+<!-- 弹窗用，不用顶部和菜单栏 -->
+<block name="_header"></block>
+<block name="_menu"></block>
+<block name="_footer"></block>
+
+<block name="content">
+<article class="cl pd-20">
+	<form class="form form-horizontal" id="form-class-edit">
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">班级ID：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				{{$info['id']}}
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">班级名：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				{{$info['name']}}
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">开班时间：</label>
+			<div class="formControls col-xs-8 col-sm-9 skin-minimal"> {{$info['start_time']}} </div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">班级状态：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<if condition="$info['status'] eq 1">
+					<span class="label label-default radius">即将开班</span>
+				<elseif condition="$info['status'] eq 2" />
+					<span class="label label-success radius">正在上课</span>
+				<else />
+					<span class="label label-warning radius">已经毕业</span>
+				</if>
+			</div>
+		</div>
+		
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">添加时间：</label>
+			<div class="formControls col-xs-8 col-sm-9 skin-minimal"> {{$info['create_time']|date='Y-m-d H:i:s',###}} </div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">添加者ID：</label>
+			<div class="formControls col-xs-8 col-sm-9 skin-minimal"> {{$info['create_by']}} </div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">最后修改时间：</label>
+			<div class="formControls col-xs-8 col-sm-9 skin-minimal"> {{$info['edit_time']|date='Y-m-d H:i:s',###}} </div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">最后修改者ID：</label>
+			<div class="formControls col-xs-8 col-sm-9 skin-minimal"> {{$info['edit_by']}} </div>
+		</div>
+	</form>
+</article>
+</block>

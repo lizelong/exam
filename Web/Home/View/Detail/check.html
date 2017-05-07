@@ -1,0 +1,209 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+<!-- 弹窗用，不用顶部和菜单栏 -->
+<block name="_header"></block>
+<block name="_menu"></block>
+
+<block name="content">
+
+<div class="cl pd-5 bg-1 bk-gray" style="position:fixed;width:100%;z-index:100">
+	<button class="r btn btn-default radius" onclick="over()" style="margin-right:30px">返回首页</button>
+	<a href="{{:U('Detail/doing')}}" class="r btn btn-primary radius" style="margin-right:30px">取消</a>
+</div>
+
+<div style="height:50px"></div>
+
+<form id="fom1" style="padding:0 30px" action="__URL__/docheck" method="post">
+	<input type="hidden" name="tests_id" value="{{$tests['id']}}">
+	<input type="hidden" name="detail_id" value="{{$tests['detail_id']}}">
+	<!-- 遍历填空题 -->
+	<notempty name="tests['topics'][5]">
+	<div>
+		<h3>填空题
+			<if condition="$tests['type'] eq 2">
+			<span class="f-16 c-red">
+			(每题 {{$tests['rule'][5][1]}} 分)
+			</span>
+			</if>
+		</h3>
+		<ol class="linenums" style="padding-left:30px">
+		
+			<foreach name="tests['topics'][5]" item="v">
+			<li topicId="{{$v['type']}}_{{$v['id']}}">
+				<span>{{$v['title']}}</span>
+				<pre class="c-999 f-12">参考答案：{{$v['answer']}}</pre>
+				<div>
+				    <input placeholder="请填写答案..." type="text" class="input-text radius" name="a_{{$v['id']}}" value="{{$tests['answer']["a_{$v['id']}"]}}" />
+			  	</div>
+			  	<div>
+				    <label class="radio-box">
+				    	<input checked type="radio" value="{{$tests['type']==2?$tests['rule'][5][1]:'yes'}}" name="fen_{{$v['id']}}" />
+				    	<span>完美</span>
+				    </label>
+					<label class="radio-box">
+				    	<input type="radio" value="0" name="fen_{{$v['id']}}" />
+				    	<span>错了</span>
+				    </label>
+			  	</div>
+			</li>
+			</foreach>
+
+		</ol>
+	</div>
+	</notempty>
+
+	<!-- 遍历简答题 -->
+	<notempty name="tests['topics'][3]">
+	<div>
+		<h3>简答题
+			<if condition="$tests['type'] eq 2">
+			<span class="f-16 c-red">
+			(每题 {{$tests['rule'][3][1]}} 分)
+			</span>
+			</if>
+		</h3>
+		<ol class="linenums" style="padding-left:30px">
+		
+			<foreach name="tests['topics'][3]" item="v">
+			<li topicId="{{$v['type']}}_{{$v['id']}}">
+				<span>{{$v['title']}}</span>
+				<pre class="c-999 f-12">参考答案：{{$v['answer']}}</pre>
+				<div>
+				    <textarea placeholder="请输入答案..." class="textarea radius" name="a_{{$v['id']}}">{{$tests['answer']["a_{$v['id']}"]}}</textarea>
+			  	</div>
+			  	
+			  	<!-- 判断是计分还是计数 -->
+			  	<if condition="$tests['type'] eq 2">
+			  	<div style="position:relative;width:400px">
+				    <span class="c-green">请输入评分：</span><input required placeholder="最多{{$tests['rule'][3][1]}}分..." max="{{$tests['rule'][3][1]}}" min="0" type="text" class="input-text radius" style="width:100px" name="fen_{{$v['id']}}" value="{{$tests['rule'][3][1]}}" />
+			  	</div>
+			  	<else />
+			  	<div>
+				    <label class="radio-box">
+				    	<input checked type="radio" value="yes" name="fen_{{$v['id']}}" />
+				    	<span>完美</span>
+				    </label>
+					<label class="radio-box">
+				    	<input type="radio" value="0" name="fen_{{$v['id']}}" />
+				    	<span>错了</span>
+				    </label>
+			  	</div>
+			  	</if>
+			</li>
+			</foreach>
+
+		</ol>
+	</div>
+	</notempty>
+
+	<!-- 遍历编程题 -->
+	<notempty name="tests['topics'][4]">
+	<div>
+		<h3>编程题
+			<if condition="$tests['type'] eq 2">
+			<span class="f-16 c-red">
+			(每题 {{$tests['rule'][4][1]}} 分)
+			</span>
+			</if>
+		</h3>
+		<ol class="linenums" style="padding-left:30px">
+		
+			<foreach name="tests['topics'][4]" item="v">
+			<li topicId="{{$v['type']}}_{{$v['id']}}">
+				<span>{{$v['title']}}</span>
+				<pre class="c-999 f-12">参考答案：{{$v['answer']}}</pre>
+				<div>
+				    <textarea placeholder="请输入答案..." class="textarea radius" style="resize:vertical" name="a_{{$v['id']}}">{{$tests['answer']["a_{$v['id']}"]}}</textarea>
+			  	</div>
+			  	
+			  	<!-- 判断计分还是计数 -->
+			  	<if condition="$tests['type'] eq 2">
+			  	<div style="position:relative;width:400px">
+				    <span class="c-green">请输入评分：</span><input required placeholder="最多{{$tests['rule'][4][1]}}分..." max="{{$tests['rule'][4][1]}}" min="0" type="text" class="input-text radius" style="width:100px" name="fen_{{$v['id']}}" value="{{$tests['rule'][4][1]}}" />
+			  	</div>
+			  	<else />
+			  	<div>
+				    <label class="radio-box">
+				    	<input checked type="radio" value="yes" name="fen_{{$v['id']}}" />
+				    	<span>完美</span>
+				    </label>
+					<label class="radio-box">
+				    	<input type="radio" value="0" name="fen_{{$v['id']}}" />
+				    	<span>错了</span>
+				    </label>
+			  	</div>
+			  	</if>
+			</li>
+			</foreach>
+
+		</ol>
+	</div>
+	</notempty>
+
+	<br><br>
+	<button class="btn radius btn-primary">提交</button>
+</form>
+</block>
+
+
+<block name="js">
+<style>
+	label.radio-box:hover{
+		border-radius:10px;
+		background:#f96;
+	}
+	input:checked + span {
+		color:red;
+		font-weight:700;
+	}
+
+</style>
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/messages_zh.js"></script>
+<script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
+<script>
+//考试结束的情况下返回首页
+function over()
+{
+	layer.confirm('考试结束才能返回，确定吗？', function(){
+		$.get('{{:U("Index/index")}}', function(res){
+			if (res.status == 1) {
+				layer.msg('考试正在进行中...');
+			} else {
+				location.href = '{{:U("Index/index")}}';
+			}
+		})
+	});
+}
+
+$(function(){
+	//禁用表单
+	$('input[name^=a_],textarea').prop('disabled', true);
+	$('input[name^=a_]').click(function(){
+		return false;
+	})
+
+	$('#fom1').validate({
+		submitHandler:function(form){
+			layer.confirm('我们会记录你所审核的信息，确认提交吗？', function(){
+				$(form).ajaxSubmit({
+					success: function(res){
+						if (res.status == 1) {
+							//添加成功
+							parent.layer.alert(res.info, {closeBtn: 0}, function(){
+								parent.location.href = res.url;
+							});
+						} else {
+							//添加失败
+							layer.alert(res.info);
+						}
+					}
+				});
+			})
+		}
+	});
+	//表单验证插件
+	
+})
+</script>
+</block>

@@ -1,0 +1,93 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+<!-- 弹窗添加，不用顶部和菜单栏 -->
+<block name="_header"></block>
+<block name="_menu"></block>
+
+<block name="content">
+<article class="cl pd-20">
+	<form action="__URL__/add" method="post" class="form form-horizontal" id="form-class-add">
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>班级名：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" placeholder="请输入班级名称" class="input-text" value="" placeholder="" id="name" name="name">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>开班时间：</label>
+
+			<div class="formControls col-xs-8 col-sm-9 skin-minimal">
+				<input type="text" placeholder="请选择开班日期" onfocus="WdatePicker()" id="datemin" class="input-text Wdate" name="startTime" style="width:120px;">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">班级状态：</label>
+			<div class="formControls col-xs-8 col-sm-9"> <span class="select-box">
+				<select class="select" size="1" name="status">
+					<option value="1">即将开班</option>
+					<option value="2">正常上课</option>
+					<option value="3">已经毕业</option>
+				</select>
+				</span> 
+			</div>
+		</div>
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+				<input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;">
+			</div>
+		</div>
+	</form>
+</article>
+</block>
+
+
+<block name="js">
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="__PUBLIC__/admin/lib/My97DatePicker/4.8/WdatePicker.js"></script>
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/validate-methods.js"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/messages_zh.js"></script>
+
+<script type="text/javascript">
+$(function(){
+	//日期插件
+	$('.skin-minimal input').iCheck({
+		checkboxClass: 'icheckbox-blue',
+		radioClass: 'iradio-blue',
+		increaseArea: '20%'
+	});
+	
+	//表单验证插件
+	$("#form-class-add").validate({
+		rules:{	//前端验证
+			name:{
+				required:true,
+				minlength:2,
+				maxlength:16
+			},
+			startTime:{
+				required:true,
+			},
+		},
+		onkeyup:false,		//键盘弹起就验证，默认为true
+		// focusCleanup:false,	//false为获取焦点时不显示框错误信息
+		success:"valid",//验证通过后给label加class="valid"
+		submitHandler:function(form){
+			$(form).ajaxSubmit({
+				success: function(res){
+					if (res.status == 1) {
+						//添加成功
+						parent.layer.alert(res.info, {closeBtn: 0}, function(){
+							parent.location.href = res.url;
+						});
+					} else {
+						//添加失败
+						layer.alert(res.info);
+					}
+				}
+			});
+		}
+	});
+});
+</script>
+</block>

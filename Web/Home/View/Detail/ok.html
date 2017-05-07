@@ -1,0 +1,55 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+<!-- 弹窗用，不用顶部和菜单栏 -->
+<block name="_header"></block>
+<block name="_menu"></block>
+
+<block name="content">
+
+<div class="cl pd-5 bg-1 bk-gray" style="position:fixed;width:100%;z-index:100">
+	<span class="">
+	考试描述：<span class="c-green f-26">{{$tests['des']}}</span>
+	考试类型：<span class="c-green f-26">{{$tests['type']==1?'计数':'计分'}}</span>
+	</span>
+	<span class="c-red">你已完成考试，请耐心等候考试结束。</span>
+	<button class="r btn btn-default radius" onclick="over()" style="margin-right:30px">返回首页</button>
+
+	<if condition="$tests['is_check'] eq 2 and $_SESSION['homeInfo']['has_check'] eq 1">
+	<a href="{{:U('Detail/check', ['tests_id'=>$tests['tests_id']])}}" class="r btn btn-primary radius" style="margin-right:30px">我要审题</a>
+	</if>
+</div>
+
+<div style="height:50px"></div>
+<div style="padding:0 30px">
+	<!-- 调用展示试卷详情的扩展 -->
+	{{:W('Tests/_tests', [$tests])}}
+</div>
+</block>
+
+
+<block name="js">
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
+<script>
+//考试结束的情况下返回首页
+function over()
+{
+	layer.confirm('考试结束才能返回，确定吗？', function(){
+		$.get('{{:U("Index/index")}}', function(res){
+			if (res.status == 1) {
+				layer.msg('考试正在进行中...');
+			} else {
+				location.href = '{{:U("Index/index")}}';
+			}
+		})
+	});
+}
+
+$(function(){
+	$('input,textarea').prop('disabled', true);
+	$('input').click(function(){
+		return false;
+	})
+})
+</script>
+</block>

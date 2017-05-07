@@ -1,0 +1,106 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+<!-- 弹窗用，不用顶部和菜单栏 -->
+<block name="_header"></block>
+<block name="_menu"></block>
+
+<block name="content">
+<article class="cl pd-20">
+	<form action="__URL__/add" method="post" class="form form-horizontal" id="form-type-add">
+		<!-- 隐藏域放前面，后面会覆盖前面的值 -->
+		<input type="hidden" name="pid" value="0">
+		<input type="hidden" name="path" value="0,">
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>所属分类：</label>
+			<div class="formControls col-xs-8 col-sm-9"> <span class="select-box" style="width:44%">
+				<select class="select" size="1" name="pid">
+					<option value="0">顶级分类</option>
+
+				<foreach name="list" item="v">
+					<option value="{{$v['id']}}">{{$v['name']}}</option>
+				</foreach>
+
+				</select>
+			</span>&nbsp;&nbsp;
+			<a id="lockType" onclick="lock(this)">锁定</a>
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>分类名：</label>
+			<div class="formControls col-xs-8 col-sm-9" style="width:35%">
+				<input type="text" placeholder="请输入分类名称" class="input-text" value=""  id="name" name="name">
+			</div>
+		</div>
+		
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+				<input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;添加&nbsp;&nbsp;">
+			</div>
+		</div>
+	</form>
+</article>
+</block>
+
+
+<block name="js">
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/validate-methods.js"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/messages_zh.js"></script>
+
+<script type="text/javascript">
+function lock(obj)
+{
+	if ($.cookie('lockType') === 'no' || $.cookie('lockType') === undefined) {
+		var val = $('select[name=pid]').val();
+		//执行锁定
+		$.cookie('lockType', val);
+		$('input[name=pid]').val(val);
+		$('select[name=pid]').prop('disabled', 'disabled');
+		$(obj).html('解锁');
+	} else {
+		//执行解锁
+		$('select[name=pid]').removeProp('disabled');
+		$(obj).html('锁定');
+		$.cookie('lockType', 'no');
+	}
+}
+$(function(){
+	//判断是否锁定分类
+	var lockType = $.cookie('lockType');
+	if (lockType !== 'no' && lockType !== undefined) {
+		//!=='no'就默认锁定
+		$('#lockType').html('解锁');
+		$('option[value='+$.cookie('lockType')+']').prop('selected', true);
+		$('select[name=pid]').prop('disabled', 'disabled');
+		$('input[name=pid]').val(lockType);
+	}
+
+	//表单验证插件
+	$("#form-type-add").validate({
+		rules:{	//前端验证
+			name:{
+				required:true
+			}
+		},
+		submitHandler:function(form){
+			$(form).ajaxSubmit({
+				success: function(res){
+					if (res.status == 1) {
+						//添加成功
+						parent.layer.alert(res.info, {closeBtn: 0}, function(){
+							parent.location.href = res.url;
+						});
+					} else {
+						//添加失败
+						layer.alert(res.info);
+					}
+				}
+			});
+		}
+	});
+});
+</script>
+</block>

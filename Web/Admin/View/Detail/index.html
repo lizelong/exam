@@ -1,0 +1,121 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+
+<block name="content">
+<section class="Hui-article-box">
+	<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> <a href="{{:U('Index/index')}}" class="maincolor">首页</a> <span class="c-gray en">&gt;</span> <a href="{{:U('Tests/index')}}" class="maincolor">考试列表</a> <span class="c-gray en">&gt;</span> 考试详情
+	<a class="btn btn-refresh btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a>
+
+	<!-- 导出数据为Excel文件 -->
+	<if condition="$list[0]['total_h'] nheq '计数'">
+	<a href="{{:U('Detail/export', ['tests_id'=>$_GET['id']])}}" class="btn btn-primary radius r" style="line-height:1.6em;margin:3px 10px 0" title="下载Excel" >导出数据</a>
+	</if>
+	</nav>
+	<div class="Hui-article">
+		<article class="cl pd-20">
+			<div class="mt-20">
+				<table class="table table-border table-bordered table-hover table-bg table-sort">
+					<thead>
+						<tr class="text-c">
+							<th>ID</th>
+							<th>姓名</th>
+							<th>审核人</th>
+							<th>系统评判</th>
+							<th>手动审核</th>
+							<th>
+								{{$list[0]['total_h']==='计数'?'总个数':'总分数'}}
+							</th>
+							<th style="width:110px">分数(百分制)<br>100/总分*现有分数</th>
+							<th>考试状态</th>
+							<th>考试时间(分钟)</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+					
+					<foreach name="list" item="v">
+						<tr class="text-c">
+							<td>{{$v['id']}}</td>
+							<td><u style="cursor:pointer" class="text-primary" onclick="layer_show('用户信息', '{{:U('User/info', ['id'=>$v['user_id']])}}', '450', '650')">{{$v['username']}}</u></td>
+							<td>
+								<if condition="$v['check_id'] eq 0">
+								系统审核
+								<else />
+								<u style="cursor:pointer" class="text-primary" onclick="layer_show('用户信息', '{{:U('User/info', ['id'=>$v['check_id']])}}', '450', '650')">{{$v['check_id']}}</u>
+								</if>
+							</td>
+							<td>{{$v['score_auto']}}/{{$v['total_auto']}}</td>
+							<td>{{$v['score_check']}}/{{$v['total_check']}}</td>
+							<td>{{$v['score_check'] + $v['score_auto']}}/{{$v['total']}}</td>
+							<td>
+								{{$v['total_h']}}
+							</td>
+							<td>
+								<if condition="$v['status'] eq 1">
+									<span class="c-red">考试中</span>
+								<elseif condition="$v['status'] eq 2" />
+									<a onclick="layer_show('审核试卷','{{:U('Detail/check', ['id'=>$v['id'], 'tests_id'=>$v['tests_id']])}}')" title="立即审核" class="c-blue">待审核</a>
+								<elseif condition="$v['status'] eq 3" />
+									<span class="c-green">已完成</span>
+								</if>
+							</td>
+							<td>{{$v['tests_time']}}</td>
+							<td class="td-manage">
+								<a onclick="layer_show('考试详情','{{:U('Detail/info',['id'=>$v['id'], 'tests_id'=>$v['tests_id'], 'score_check'=>$v['score_check'].'-'.$v['total_check']])}}')" title="查看详情" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe665;</i></a> 
+								<if condition="$v['status'] eq 1">
+								<a title="强制提交" href="javascript:;" onclick="submit_ok(this,{{$v['id']}})" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe676;</i></a>
+								</if>
+							</td>
+						</tr>
+					</foreach>
+					</tbody>
+				<notempty name="not">
+					<tfoot>
+					<tr>
+						<td colspan="10">
+							<foreach name="not" item="val" key="k">
+								<u style="cursor:pointer" class="text-primary" onclick="layer_show('用户信息', '{{:U('User/info', ['id'=>$k])}}', '450', '650')">{{$val}}</u>、
+							</foreach>
+							还没有开始考试
+						</td>
+					</tr>
+					</tfoot>
+				</notempty>
+				</table>
+			</div>
+		</article>
+	</div>
+</section>
+</block>
+
+
+<block name="js">
+<!-- 引入表格的js插件 -->
+<script type="text/javascript" src="__PUBLIC__/admin/lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
+
+<script type="text/javascript">
+$(function(){
+	$('.table-sort').dataTable({
+		"aaSorting": [[ 0, "desc" ]],//默认第几个排序
+		pageLength: 50, 	//每页显示条数
+	});
+});
+
+/*强制提交*/
+function submit_ok(obj, id)
+{
+	layer.confirm('学生正在考试，是否强制提交？',function(index){
+		$.post('{{:U("Detail/submitOk")}}', 'id='+id, function(res){
+			if (res.status == 1) {
+				$(obj).parent().prev().prev().html('待审核').addClass('c-blue').removeClass('c-red');
+				$(obj).remove();
+				layer.msg(res.info,{icon:6,time:1000});
+			} else {
+				layer.msg(res.info,{icon:5,time:1000});
+			}
+		})
+	});
+}
+</script>
+</block>

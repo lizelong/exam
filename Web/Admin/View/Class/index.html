@@ -1,0 +1,132 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+
+<block name="content">
+<section class="Hui-article-box">
+	<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> <a href="{{:U('Index/index')}}" class="maincolor">首页</a> <span class="c-gray en">&gt;</span> 班级列表<a class="btn btn-refresh btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+	<div class="Hui-article">
+		<article class="cl pd-20">
+			<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onclick="layer_show('添加班级','{{:U('Class/add')}}','500','300')" class="btn btn-primary radius"><i class="Hui-iconfont">&#xe600;</i> 添加班级</a></span> </div>
+			<div class="mt-20">
+				<table class="table table-border table-bordered table-hover table-bg table-sort">
+					<thead>
+						<tr class="text-c">
+							<th>ID</th>
+							<th width="200">班级名</th>
+							<th>开班时间</th>
+							<th>班级状态</th>
+							<th>创建时间</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+					
+					<foreach name="list" item="v">
+						<tr class="text-c">
+							<td>{{$v['id']}}</td>
+							<td><u style="cursor:pointer" class="text-primary" onclick="layer_show('班级信息', '{{:U('Class/info', ['id'=>$v['id']])}}', '450', '500')">{{$v['name']}}</u></td>
+							<td>{{$v['start_time']}}</td>
+							<td>{{$v['status']}}</td>
+							<td>{{$v['create_time']}}</td>
+							<td class="td-manage">
+								<a title="编辑" href="javascript:;" onclick="layer_show('编辑','{{:U('Class/edit',['id'=>$v['id']])}}','500','300')" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6df;</i></a> 
+								<a title="删除" href="javascript:;" onclick="class_del(this,{{$v['id']}})" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a>
+								<if condition="$v['is_reg'] eq 1">
+								<a title="开启注册" href="javascript:;" onclick="is_reg(this,{{$v['id']}})" reg="{{$v['is_reg']}}" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e1;</i></a>
+								<else />
+								<a title="关闭注册" href="javascript:;" onclick="is_reg(this,{{$v['id']}})" reg="{{$v['is_reg']}}" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe631;</i></a>
+								</if>
+							</td>
+						</tr>
+					</foreach>
+
+					</tbody>
+				</table>
+			</div>
+		</article>
+	</div>
+</section>
+</block>
+
+
+<block name="js">
+<!-- 引入日期时间的js插件 -->
+<script type="text/javascript" src="__PUBLIC__/admin/lib/My97DatePicker/4.8/WdatePicker.js"></script>
+<!-- 引入表格的js插件 -->
+<script type="text/javascript" src="__PUBLIC__/admin/lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
+
+<script type="text/javascript">
+$(function(){
+	$('.table-sort').dataTable({
+		"aaSorting": [[ 0, "desc" ]],//默认第几个排序
+		"bStateSave": true,//状态保存
+		// pagingType: 'full_numbers', 	//是否包含首页尾页按钮
+		// pageLength: 10, 	//每页显示条数
+		// lengthMenu: [ 10, 30, 50, 100 ],//每页显示的数量
+		// serverSide: true,	//是否由服务器接管分页、排序等
+    	// paging: 	false, 	//禁止分页
+    	// info: 		false,	//是否显示左下角的信息
+    	// lengthChange: false,	//禁止改变每页显示条数
+    	// ordering:  	false,	//禁止排序
+	});
+
+	//点击表格的行选中
+	$('.table-sort tbody').on( 'click', 'tr', function () {
+		if ( $(this).hasClass('selected') ) {
+			$(this).removeClass('selected');
+		}
+		else {
+			$('tr.selected').removeClass('selected');
+			$(this).addClass('selected');
+		}
+	});
+});
+
+/*班级删除*/
+function class_del(obj,id){
+	layer.confirm('确认要删除吗？',function(index){
+		$.post('{{:U("Class/del")}}', 'id='+id, function(res){
+			if (res.status == 1) {
+				$(obj).parents("tr").remove();
+				layer.msg(res.info,{icon:6,time:1000});
+			} else {
+				layer.msg(res.info,{icon:5,time:1000});
+			}
+			/*
+			icon:1  钩钩
+			icon:2  叉叉
+			icon:3  问号
+			icon:4  锁
+			icon:5  哭脸
+			icon:6  笑脸
+			icon:7  叹号
+			 */
+		})
+	});
+}
+
+/**
+ * 班级是否开放注册
+ */
+function is_reg(obj, id)
+{
+	layer.confirm('确认要改变注册状态？',function(index){
+		$.post('{{:U("Class/is_reg")}}', 'id='+id+'&reg='+$(obj).attr('reg'), function(res){
+			if (res.status == 1) {
+				if ($(obj).attr('reg') == 1) {
+					$(obj).attr('reg', 2);
+					$(obj).find('i').html('&#xe631;');
+				} else {
+					$(obj).attr('reg', 1);
+					$(obj).find('i').html('&#xe6e1;');
+				}
+				layer.msg(res.info,{icon:6,time:1000});
+			} else {
+				layer.msg(res.info,{icon:5,time:1000});
+			}
+		})
+	});
+}
+</script>
+</block>

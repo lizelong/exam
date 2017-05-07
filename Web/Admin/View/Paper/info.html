@@ -1,0 +1,152 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+<!-- 弹窗用，不用顶部和菜单栏 -->
+<block name="_header"></block>
+<block name="_menu"></block>
+
+<block name="content">
+
+<div class="cl pd-5 bg-1 bk-gray" style="position:fixed;width:100%;z-index:100">
+	<span class="r">
+	试卷描述：<span class="c-green">{{$info['des']}}</span>
+	<empty name="tests">
+	<a onclick="layer.confirm('重新生成会覆盖目前已添加的试题?', function(){location.href='{{:U('Paper/prev', ['id'=>$info['id']])}}'})" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe60c;</i> 重新生成</a>
+	</empty>
+	</span>
+</div>
+
+<div style="height:50px"></div>
+<form action="">
+<!-- 遍历选择题 -->
+	<notempty name="info['topics'][1]">
+	<div>
+		<h3>选择题</h3>
+		<ol class="linenums" style="padding-left:30px">
+			<foreach name="info['topics'][1]" item="v">
+			<li topicId="{{$v['type']}}_{{$v['id']}}">
+				<span>{{$v['title']}}</span> <span class="c-red">(题目ID：{{$v['id']}})</span>
+				<div>
+					<?php $opt = json_decode($v['option'])?>
+					<ul style="list-style:upper-alpha inside;">
+						<li>{{$opt[0]}}</li>
+						<li>{{$opt[1]}}</li>
+						<li>{{$opt[2]}}</li>
+						<li>{{$opt[3]}}</li>
+					</ul>
+				</div>
+				<div>
+					<!-- 单选框选项中的ABCD -->
+					<assign name="a" value="A" />
+					<for start="1" end="5">
+					    <label class="radio-box">
+					    	<input type="radio" name="answer_{{$v['id']}}">
+					    	<span>{{$a++}}</span>
+					    </label>
+				    </for>
+			  	</div>
+			</li>
+			</foreach>
+
+		</ol>
+	</div>
+	</notempty>
+
+<!-- 遍历判断题 -->
+	<notempty name="info['topics'][2]">
+	<div>
+		<h3>判断题</h3>
+		<ol class="linenums" style="padding-left:30px">
+
+			<foreach name="info['topics'][2]" item="v">
+			<li topicId="{{$v['type']}}_{{$v['id']}}">
+				<span>{{$v['title']}}</span> <span class="c-red">(题目ID：{{$v['id']}})</span>
+				<div>
+				    <label class="radio-box">
+				    	<input type="radio" value="y" name="answer_{{$v['id']}}">
+				    	<span>对对对，你说的都对</span>
+				    </label>
+					<label class="radio-box">
+				    	<input type="radio" value="n" name="answer_{{$v['id']}}">
+				    	<span>我不信，多半是假的</span>
+				    </label>
+			  	</div>
+			</li>
+			</foreach>
+
+		</ol>
+	</div>
+	</notempty>
+
+<!-- 遍历填空题 -->
+	<notempty name="info['topics'][5]">
+	<div>
+		<h3>填空题</h3>
+		<ol class="linenums" style="padding-left:30px">
+		
+			<foreach name="info['topics'][5]" item="v">
+			<li topicId="{{$v['type']}}_{{$v['id']}}">
+				<span>{{$v['title']}}</span> <span class="c-red">(题目ID：{{$v['id']}})</span>
+				<div>
+				    <input placeholder="请填写答案..." type="text" class="input-text radius" name="answer_{{$v['id']}}" />
+			  	</div>
+			</li>
+			</foreach>
+
+		</ol>
+	</div>
+	</notempty>
+
+<!-- 遍历简答题 -->
+	<notempty name="info['topics'][3]">
+	<div>
+		<h3>简答题</h3>
+		<ol class="linenums" style="padding-left:30px">
+		
+			<foreach name="info['topics'][3]" item="v">
+			<li topicId="{{$v['type']}}_{{$v['id']}}">
+				<span>{{$v['title']}}</span> <span class="c-red">(题目ID：{{$v['id']}})</span>
+				<div>
+				    <textarea placeholder="请输入答案..." class="textarea radius" name="answer_{{$v['id']}}"></textarea>
+			  	</div>
+			</li>
+			</foreach>
+
+		</ol>
+	</div>
+	</notempty>
+
+<!-- 遍历编程题 -->
+	<notempty name="info['topics'][4]">
+	<div>
+		<h3>编程题</h3>
+		<ol class="linenums" style="padding-left:30px">
+		
+			<foreach name="info['topics'][4]" item="v">
+			<li topicId="{{$v['type']}}_{{$v['id']}}">
+				<span>{{$v['title']}}</span> <span class="c-red">(题目ID：{{$v['id']}})</span>
+				<div>
+				    <textarea placeholder="请输入答案..." class="textarea radius" style="resize:vertical" name="answer_{{$v['id']}}"></textarea>
+			  	</div>
+			</li>
+			</foreach>
+
+		</ol>
+	</div>
+	</notempty>
+</form>
+</block>
+
+
+<block name="js">
+<style>
+	label.radio-box:hover{
+		border-radius:10px;
+		background:#ddd;
+	}
+	input:checked + span {
+		color:red;
+		font-weight:700;
+	}
+
+</style>
+</block>

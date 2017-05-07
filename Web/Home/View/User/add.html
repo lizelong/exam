@@ -1,0 +1,118 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+<!-- 弹窗用，不用顶部和菜单栏 -->
+<block name="_header"></block>
+<block name="_menu"></block>
+
+<block name="content">
+<article class="cl pd-20">
+	<form action="__URL__/add" method="post" class="form form-horizontal" id="form-user-add">
+	<empty name="classList">
+		<h3 class="c-red">sorry，暂时无法注册。请联系管理员，开放注册班级</h3>
+	</empty>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>所属班级：</label>
+			<div class="formControls col-xs-8 col-sm-9"> <span class="select-box" style="width:44%">
+				<select class="select" size="1" name="class_id">
+					<option value="">请选择班级</option>
+				<foreach name="classList" item="v">
+					<option value="{{$v['id']}}">{{$v['name']}}</option>
+				</foreach>
+				</select>
+			</span>
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>登录名：</label>
+			<div class="formControls col-xs-8 col-sm-9" style="width:35%">
+				<input type="text" placeholder="请输入学生名称" class="input-text" value=""  id="username" name="username">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>密码：</label>
+
+			<div class="formControls col-xs-8 col-sm-9" style="width:35%">
+				<input type="password" placeholder="请输入登录密码" class="input-text" value=""  id="pwd" name="pwd">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>确认密码：</label>
+
+			<div class="formControls col-xs-8 col-sm-9" style="width:35%">
+				<input type="password" placeholder="请再次确认密码" class="input-text" value=""  id="pwd2" name="pwd2">
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>性别：</label>
+			<div class="formControls col-xs-8 col-sm-9 skin-minimal">
+				<div class="radio-box">
+					<input name="sex" value="1" type="radio" id="sex-1" checked>
+					<label for="sex-1">男</label>
+				</div>
+				<div class="radio-box">
+					<input type="radio" value="0" id="sex-2" name="sex">
+					<label for="sex-2">女</label>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+				<input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;添加&nbsp;&nbsp;">
+			</div>
+		</div>
+	</form>
+</article>
+</block>
+
+
+<block name="js">
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/messages_zh.js"></script>
+
+<script type="text/javascript">
+$(function(){
+	//表单验证插件
+	$("#form-user-add").validate({
+		rules:{	//前端验证
+			class_id:{
+				required:true,
+			},
+			username:{
+				required:true,
+				minlength:2,
+				maxlength:5
+			},
+			pwd:{
+				required:true,
+			},
+			pwd2:{
+				required:true,
+				equalTo:"#pwd"
+			},
+		},
+		onkeyup:false,		//键盘弹起就验证，默认为true
+		success:"valid",//验证通过后给label加class="valid"
+		submitHandler:function(form){
+			$(form).ajaxSubmit({
+				success: function(res){
+					if (res.status == 1) {
+						//添加成功
+						parent.layer.alert(res.info, {closeBtn: 0}, function(){
+							parent.location.href = res.url;
+						});
+					} else {
+						//添加失败
+						layer.alert(res.info);
+					}
+				}
+			});
+		}
+	});
+});
+</script>
+
+</block>

@@ -1,0 +1,15 @@
+@charset "utf-8";
+/* 你自己的样式 */
+.table .td-manage{
+	font-size:20px;
+}
+
+select:disabled, .tr-bg
+{
+	background:#ccc;
+}
+
+.tr-bg
+{
+	background:#F5F5F5;
+}

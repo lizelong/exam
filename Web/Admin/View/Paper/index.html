@@ -1,0 +1,76 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+
+<block name="content">
+<section class="Hui-article-box">
+	<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> <a href="{{:U('Index/index')}}" class="maincolor">首页</a> <span class="c-gray en">&gt;</span> 试卷列表<a class="btn btn-refresh btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+	<div class="Hui-article">
+		<article class="cl pd-20">
+			<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="{{:U('Paper/add')}}" class="btn btn-primary radius"><i class="Hui-iconfont">&#xe600;</i> 添加试卷</a></span> </div>
+			<div class="mt-20">
+				<table class="table table-border table-bordered table-hover table-bg table-sort" style="table-layout:fixed;">
+					<thead>
+						<tr class="text-c">
+							<th width="5%">ID</th>
+							<th width="10%">试卷描述</th>
+							<th width="10%">题目数量</th>
+							<th width="10%">添加时间</th>
+							<th width="10%">添加人</th>
+							<th width="10%">操作</th>
+						</tr>
+					</thead>
+					<tbody>
+					
+					<foreach name="list" item="v">
+						<tr class="text-c">
+							<td>{{$v['id']}}</td>
+							<td style="cursor:pointer" title="点我查看详情" onclick="layer_show('试卷详情', '{{:U('info', ['id'=>$v['id']])}}')">{{$v['des']}}</td>
+							<td>{{$v['topicNum']}}</td>
+							<td>{{$v['create_time']}}</td>
+							<td>{{$v['username']}}</td>
+
+							<td class="td-manage">
+								<a title="编辑" onclick="layer_show('编辑','{{:U('Paper/edit',['id'=>$v['id']])}}','','300')" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6df;</i></a> 
+								<a title="删除" href="javascript:;" onclick="paper_del(this,{{$v['id']}})" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a>
+
+								<a title="准备考试" onclick="layer_show('准备考试','{{:U('Tests/add',['paper_id'=>$v['id']])}}','500','500')" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe70c;</i></a>
+							</td>
+						</tr>
+					</foreach>
+
+					</tbody>
+				</table>
+			</div>
+		</article>
+	</div>
+</section>
+</block>
+
+
+<block name="js">
+<!-- 引入表格的js插件 -->
+<script type="text/javascript" src="__PUBLIC__/admin/lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
+
+<script type="text/javascript">
+$(function(){
+	$('.table-sort').dataTable({
+		"aaSorting": [[ 0, "desc" ]],//默认第几个排序
+	});
+});
+
+/*试卷删除*/
+function paper_del(obj,id){
+	layer.confirm('确认要删除吗？',function(index){
+		$.post('{{:U("Paper/del")}}', 'id='+id, function(res){
+			if (res.status == 1) {
+				$(obj).parents("tr").remove();
+				layer.msg(res.info,{icon:6,time:1000});
+			} else {
+				layer.msg(res.info,{icon:5,time:1000});
+			}
+		})
+	});
+}
+</script>
+</block>

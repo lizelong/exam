@@ -1,0 +1,260 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+<!-- 弹窗用，不用顶部和菜单栏 -->
+<block name="_header"></block>
+<block name="_menu"></block>
+
+<block name="content">
+<article class="cl pd-20">
+	<form action="__URL__/add" method="post" class="form form-horizontal" id="form-topic-add">
+		<!-- 隐藏域放前面，后面会覆盖前面的值 -->
+		<input type="hidden" name="type_id" value="">
+		<input type="hidden" name="type" value="">
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>所属分类：</label>
+			<div class="formControls col-xs-8 col-sm-9"> <span class="select-box" style="width:44%">
+				<select class="select" size="1" name="type_id">
+					<option value="">请选择分类</option>
+
+				<foreach name="TypeList" item="v">
+					<if condition="$v['pid'] != 0">
+						<option value="{{$v['id']}}">{{$v['name']}}</option>
+					<else />
+						<option disabled>{{$v['name']}}</option>
+					</if>
+				</foreach>
+
+				</select>
+			</span>&nbsp;&nbsp;
+			<a id="TypeId" onclick="lock(this, 'TypeId')">锁定</a>
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>题目类型：</label>
+			<div class="formControls col-xs-8 col-sm-9"> <span class="select-box" style="width:44%">
+				<select class="select" size="1" name="type" onchange="changeType(this)">
+					<option value="">请选择题目类型</option>
+					<option value="1">选择题</option>
+					<option value="2">判断题</option>
+					<option value="3">简答题</option>
+					<option value="4">编程题</option>
+					<option value="5">填空题</option>
+				</select>
+			</span>&nbsp;&nbsp;
+			<a id="TopicType" onclick="lock(this, 'TopicType')">锁定</a>
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>题目标题：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<textarea name="title" placeholder="请输入题目" style="width:100%" rows="3"></textarea>
+				<textarea style="display:none;width:100%" name="code_t" placeholder="请输入代码" rows="15"></textarea>
+				<button type="button" class="btn btn-success btn-radius size-MINI" onclick="addCode(this)">添加代码</button>
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>答案：</label>
+
+			<div id="answer" class="formControls col-xs-8 col-sm-9">
+				<textarea name="answer" placeholder="请输入答案" style="width:100%" rows="6"></textarea>
+				<textarea style="display:none;width:100%" name="code_a" placeholder="请输入代码" rows="15"></textarea>
+				<button type="button" class="btn btn-success btn-radius size-MINI" onclick="addCode(this)">添加代码</button>
+			</div>
+		</div>
+
+		<div class="row cl" style="display:none" id="options">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>选择题选项：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" disabled placeholder="请输入选项A" class="input-text" value="" name="option[]">
+				<input type="text" disabled placeholder="请输入选项B" class="input-text" value="" name="option[]">
+				<input type="text" disabled placeholder="请输入选项C" class="input-text" value="" name="option[]">
+				<input type="text" disabled placeholder="请输入选项D" class="input-text" value="" name="option[]">
+			</div>
+		</div>
+
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+				<input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;添加&nbsp;&nbsp;">
+			</div>
+		</div>
+	</form>
+</article>
+</block>
+
+
+<block name="js">
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/messages_zh.js"></script>
+
+<script type="text/javascript">
+/**
+ * 添加代码输入框
+ */
+function addCode(obj, name)
+{
+	if (obj.innerHTML != '取消') {
+		$(obj).html('取消').prev().slideDown(800);
+	} else {
+		$(obj).html('添加代码').prev().slideUp(600);
+	}
+}
+//选择题的答案str
+var str_x = '';
+str_x += '<label class="radio-box"><input checked type="radio" name="answer" value="a">A</label>';
+str_x += '<label class="radio-box"><input type="radio" name="answer" value="b">B</label>';
+str_x += '<label class="radio-box"><input type="radio" name="answer" value="c">C</label>';
+str_x += '<label class="radio-box"><input type="radio" name="answer" value="d">D</label>';
+
+//判断题的答案str
+var str_p = '';
+str_p += '<label class="radio-box"><input checked type="radio" name="answer" value="y">正确</label>';
+str_p += '<label class="radio-box"><input type="radio" name="answer" value="n">错误</label>';
+/**
+ * change事件判断是否是选择题类型
+ * @param  {object} obj this对象
+ */
+function changeType(obj) {
+	if (obj.value == 1) {
+		//改为选择题的答案
+		$('#answer').html(str_x);
+		$('#options input').removeProp('disabled');
+		$('#options').slideDown(500);
+	} else if (obj.value == 2) {
+		//改为判断题的答案
+		$('#options input').prop('disabled', 'disabled');
+		$('#options').slideUp(500);
+		$('#answer').html(str_p);
+	} else {
+		//还原为文本输入框
+		$('#options input').prop('disabled', 'disabled');
+		$('#options').slideUp(500);
+		$('#answer').html('<textarea name="answer" placeholder="请输入答案" style="width:100%" rows="6"></textarea> <textarea style="display:none;width:100%" name="code_a" placeholder="请输入代码" rows="15"></textarea> <button type="button" class="btn btn-success btn-radius size-MINI" onclick="addCode(this)">添加代码</button>');
+	}
+
+}
+/**
+ * 执行锁定的函数
+ * @param  {object} obj this对象
+ * @param  {string} str 锁定对象的标记字符串
+ */
+function lock(obj, str)
+{
+	if (str === 'TypeId') {
+		if ($.cookie('TypeId') === 'no' || $.cookie('TypeId') === undefined) {
+			var val = $('select[name=type_id]').val();
+			if (val === '') {
+				layer.msg('请选择分类再锁定');
+				return;
+			}
+			//执行锁定
+			$.cookie('TypeId', val);
+			$('input[name=type_id]').val(val);
+			$('select[name=type_id]').prop('disabled', 'disabled');
+			$(obj).html('解锁');
+		} else {
+			//执行解锁
+			$('select[name=type_id]').removeProp('disabled');
+			$(obj).html('锁定');
+			$.cookie('TypeId', 'no');
+		}
+	} else if (str === 'TopicType') {
+		if ($.cookie('TopicType') === 'no' || $.cookie('TopicType') === undefined) {
+			var val = $('select[name=type]').val();
+			if (val === '') {
+				layer.msg('请先选择题目类型再锁定');
+				return;
+			}
+			//执行锁定
+			$.cookie('TopicType', val);
+			$('select[name=type]').prop('disabled', 'disabled');
+			$('input[name=type]').val(val);
+			$(obj).html('解锁');
+
+			//判断锁定的是否是选择题
+			// if (val == 1) {
+			// 	$('#options input').removeProp('disabled');
+			// 	$('#options').slideDown(500);
+			// }
+		} else {
+			//执行解锁
+			$('select[name=type]').removeProp('disabled');
+			$(obj).html('锁定');
+			$.cookie('TopicType', 'no');
+		}
+	}
+}
+$(function(){
+	//判断是否锁定分类
+	var TypeId = $.cookie('TypeId');
+	if (TypeId !== 'no' && TypeId !== undefined) {
+		//!=='no'就默认锁定
+		$('#TypeId').html('解锁');
+		$('select[name=type_id] option[value='+TypeId+']').prop('selected', true);
+		$('select[name=type_id]').prop('disabled', 'disabled');
+		$('input[name=type_id]').val(TypeId);
+	}
+
+	//判断是否锁定题目类型
+	var TopicType = $.cookie('TopicType');
+	if (TopicType !== 'no' && TopicType !== undefined) {
+		//!=='no'就默认锁定
+		$('#TopicType').html('解锁');
+		$('select[name=type] option[value='+TopicType+']').prop('selected', true);
+		$('select[name=type]').prop('disabled', 'disabled');
+		$('input[name=type]').val(TopicType);
+
+		//判断锁定的是否是选择题
+		if (TopicType == 1) {
+			$('#answer').html(str_x);
+			$('#options input').removeProp('disabled');
+			$('#options').slideDown(500);
+		} else if (TopicType == 2) {
+			$('#answer').html(str_p);
+			$('#options input').prop('disabled', 'disabled');
+			$('#options').slideUp(500);
+		}
+	}
+
+	//表单验证插件
+	$("#form-topic-add").validate({
+		rules:{	//前端验证
+			type_id:{
+				required:true,
+			},
+			type:{
+				required:true,
+			},
+			title:{
+				required:true,
+			},
+			answer:{
+				required:true,
+			}
+		},
+		onkeyup:false,		//键盘弹起就验证，默认为true
+		success:"valid",//验证通过后给label加class="valid"
+		submitHandler:function(form){
+			$(form).ajaxSubmit({
+				success: function(res){
+					if (res.status == 1) {
+						//添加成功
+						parent.layer.alert(res.info, {closeBtn: 0}, function(){
+							parent.location.href = res.url;
+						});
+					} else {
+						//添加失败
+						layer.alert(res.info);
+					}
+				}
+			});
+		}
+	});
+});
+</script>
+
+</block>

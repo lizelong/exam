@@ -1,0 +1,54 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+
+<block name="content">
+<section class="Hui-article-box">
+	<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> <a href="{{:U('Index/index')}}" class="maincolor">首页</a> <span class="c-gray en">&gt;</span> 
+	<notempty name="tests_id">
+	<a href="{{:U('Tests/index')}}" class="maincolor">考试列表</a> <span class="c-gray en">&gt;</span> 
+	</notempty>
+	错题统计<a class="btn btn-refresh btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+	<div class="Hui-article">
+		<article class="cl pd-20">
+			<div class="mt-20">
+				<table class="table table-border table-bordered table-hover table-bg table-sort" style="table-layout:fixed;">
+					<thead>
+						<tr class="text-c">
+							<th width="5%">ID</th>
+							<th width="10%">题目ID</th>
+							<th width="10%">错误数量</th>
+							<th width="10%">操作</th>
+						</tr>
+					</thead>
+					<tbody>
+					
+					<empty name="list">
+						<tr>
+							<td colspan="4">暂无数据~</td>
+						</tr>
+					<else />
+					<foreach name="list" item="v">
+						<tr class="text-c">
+							<td>{{$v['id']}}</td>
+							<td style="cursor:pointer" title="点我查看详情" onclick="layer_show('题目详情', '{{:U('Topic/info', ['id'=>$v['topic_id']])}}')">{{$v['topic_id']}}</td>
+							<td>{{$v['nums']}}</td>
+							<td class="td-manage">
+								<a title="查看所有答错题者" onclick="layer_show('错题者','{{:U('Error/users',['topic_id'=>$v['topic_id'], 'tests_id'=>$tests_id])}}','300','500')" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe70c;</i></a>
+							</td>
+						</tr>
+					</foreach>
+					</empty>
+
+					</tbody>
+				</table>
+			</div>
+		</article>
+	</div>
+</section>
+</block>
+
+
+<block name="js">
+<script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
+
+</block>

@@ -1,0 +1,177 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+<!-- 弹窗用，不用顶部和菜单栏 -->
+<block name="_header"></block>
+<block name="_menu"></block>
+
+<block name="content">
+<article class="cl pd-20">
+	<form action="__URL__/add" method="post" class="form form-horizontal" id="form-tests-add">
+		<input type="hidden" name="paper_id" value="{{$info['id']}}">
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>考试班级：</label>
+			<div class="formControls col-xs-8 col-sm-9"> <span class="select-box" style="width:44%">
+				<select class="select" size="1" name="class_id">
+					<option value="">请选择班级</option>
+
+				<foreach name="classList" item="v">
+					<option value="{{$v['id']}}">{{$v['name']}}</option>
+				</foreach>
+
+				</select>
+			</span>
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>考试类型：</label>
+			<div class="formControls col-xs-8 col-sm-9"> <span class="select-box" style="width:44%">
+				<select class="select" size="1" name="type" onchange="changeType(this)">
+					<option value="1">统计正确个数</option>
+					<option value="2">统计考试分数</option>
+				</select>
+			</span>
+			</div>
+		</div>
+
+		<div class="row cl" style="display:none" id="options">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>计分选项：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<assign name="total" value="0" />
+				<notempty name="info['topics'][1]">
+				选择题：
+				<span>{{:count($info['topics'][1])}}</span> * 
+				<input disabled type="text" style="border:2px solid lightblue;text-align:center" size="3" value="2" name="fen1"> 分<br>
+				<?php $total += count($info['topics'][1])*2; ?>
+				</notempty>
+				<notempty name="info['topics'][2]">
+				判断题：
+				<span>{{:count($info['topics'][2])}}</span> * 
+				<input disabled type="text" style="border:2px solid lightblue;text-align:center" size="3" value="2" name="fen2"> 分<br>
+				<?php $total += count($info['topics'][2])*2; ?>
+				</notempty>
+				<notempty name="info['topics'][5]">
+				填空题：
+				<span>{{:count($info['topics'][5])}}</span> * 
+				<input disabled type="text" style="border:2px solid lightblue;text-align:center" size="3" value="2" name="fen5"> 分<br>
+				<?php $total += count($info['topics'][5])*2; ?>
+				</notempty>
+				<notempty name="info['topics'][3]">
+				简答题：
+				<span>{{:count($info['topics'][3])}}</span> * 
+				<input disabled type="text" style="border:2px solid lightblue;text-align:center" size="3" value="5" name="fen3"> 分<br>
+				<?php $total += count($info['topics'][3])*5; ?>
+				</notempty>
+				<notempty name="info['topics'][4]">
+				编程题：
+				<span>{{:count($info['topics'][4])}}</span> * 
+				<input disabled type="text" style="border:2px solid lightblue;text-align:center" size="3" value="10" name="fen4"> 分<br>
+				<?php $total += count($info['topics'][4])*10; ?>
+				</notempty>
+				<b>共 <u id="total">{{$total}}</u> 分</b>
+			</div>
+		</div>
+
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>考试说明：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<textarea name="des" placeholder="请输入考试说明，如：PHP01期入学测试" style="width:100%" rows="3"></textarea>
+			</div>
+		</div>
+
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+				<input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;开始考试&nbsp;&nbsp;">
+			</div>
+		</div>
+	</form>
+</article>
+</block>
+
+
+<block name="js">
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/messages_zh.js"></script>
+
+<script type="text/javascript">
+/**
+ * change事件判断是否是选择题类型
+ * @param  {object} obj this对象
+ */
+function changeType(obj) {
+	if (obj.value == 2) {
+		$('#options input').removeProp('disabled');
+		$('#options').slideDown(500);
+	} else {
+		$('#options input').prop('disabled', 'disabled');
+		$('#options').slideUp(500);
+	}
+}
+
+$(function(){
+	//统计总分数
+	$('input[name^=fen]').on('input', function(){
+		var num = 0;
+		$('input[name^=fen]').each(function(){
+			num += parseInt($(this).val()) * parseInt($(this).prev().html());
+		})
+		$('#total').html(num);
+	});
+
+	//表单验证插件
+	$("#form-tests-add").validate({
+		rules:{	//前端验证
+			class_id:{
+				required:true,
+			},
+			type:{
+				required:true,
+			},
+			des:{
+				required:true,
+			},
+			fen1:{
+				required:true,
+				min:1,
+			},
+			fen2:{
+				required:true,
+				min:1,
+			},
+			fen3:{
+				required:true,
+				min:1,
+			},
+			fen4:{
+				required:true,
+				min:1,
+			},
+			fen5:{
+				required:true,
+				min:1,
+			}
+		},
+		onkeyup:false,		//键盘弹起就验证，默认为true
+		success:"valid",//验证通过后给label加class="valid"
+		submitHandler:function(form){
+			$(form).ajaxSubmit({
+				success: function(res){
+					if (res.status == 1) {
+						//添加成功
+						parent.layer.alert(res.info, {closeBtn: 0}, function(){
+							parent.location.href = res.url;
+						});
+					} else {
+						//添加失败
+						layer.alert(res.info);
+					}
+				}
+			});
+		}
+	});
+});
+</script>
+
+</block>
