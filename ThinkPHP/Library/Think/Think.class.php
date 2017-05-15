@@ -27,11 +27,6 @@ class Think {
      * @return void
      */
     static public function start() {
-      defined('MY_USER')   or define('MY_USER','qdm165376574');    // 数据库密码
-      defined('MY_NAME')   or define('MY_NAME','qdm165376574_db');    // 数据库密码
-      defined('MY_PASS')   or define('MY_PASS','0101001lzl');    // 数据库密码
-      defined('MY_HOST')   or define('MY_HOST','qdm165376574.my3w.com');    // 数据库密码
-      
       // 注册AUTOLOAD方法
       spl_autoload_register('Think\Think::autoload');      
       // 设定错误和异常处理
