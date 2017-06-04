@@ -18,5 +18,16 @@ return array(
 
     'MODULE_ALLOW_LIST' =>    array('Home','Xdl'),//允许列表
     'DEFAULT_MODULE'    =>    'Home',  // 默认模块
-    'URL_MODULE_MAP'    =>    array('xdl'=>'admin'), //模块映射   
+    'URL_MODULE_MAP'    =>    array('xdl'=>'admin'), //模块映射  
+
+    'TMPL_PARSE_STRING'  => [
+        '__VALIDATE__'  =>  __ROOT__.'/Public/Admin/lib/jquery.validation/1.14.0/jquery.validate.min.js',
+        '__JQUERY__'    =>  __ROOT__.'/Public/Admin/lib/jquery/1.9.1/jquery.min.js',
+        '__LAYER__'    =>  __ROOT__.'/Public/admin/lib/layer/2.4/layer.js',
+        /*CDN加速开始*/
+        '__VALIDATE__'  =>  'https://cdn.bootcss.com/jquery-validate/1.14.0/jquery.validate.min.js',
+        '__JQUERY__'    =>  'https://cdn.bootcss.com/jquery/1.9.1/jquery.min.js',
+        '__LAYER__'     =>  'https://cdn.bootcss.com/layer/2.4/layer.min.js',
+        /*CDN加速结束*/
+    ], 
 );
