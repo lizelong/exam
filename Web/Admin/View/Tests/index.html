@@ -87,25 +87,43 @@ $(function(){
 /*考试删除*/
 function tests_del(obj,id){
 	layer.confirm('确认要删除吗？',function(index){
-		$.post('{{:U("Tests/del")}}', 'id='+id, function(res){
-			if (res.status == 1) {//删除成功
-				$(obj).parents("tr").remove();
-				layer.msg(res.info,{icon:6,time:1000});
-			} else if (res.status == 5) {//是否强制删除
-				layer.confirm(res.info, function(index){
-				$.post('{{:U("Tests/del")}}', 'id='+id+'&del=ok', function(res){
-						if (res.status == 1) {
-							$(obj).parents("tr").remove();
-							layer.msg(res.info,{icon:6,time:1000});
-						} else {
-							layer.msg(res.info,{icon:5,time:1000});
-						}
-					})
-				});
-			} else {//删除失败
-				layer.msg(res.info,{icon:5,time:1000});
+		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
+		$.ajax({
+			type: 'post',
+			url: '{{:U("Tests/del")}}',
+			data: 'id='+id,
+			success: function(res){
+				if (res.status == 1) {//删除成功
+					$(obj).parents("tr").remove();
+					layer.msg(res.info,{icon:6,time:1000});
+				} else if (res.status == 5) {//是否强制删除
+					layer.confirm(res.info, function(index){
+						$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
+						$.ajax({
+							type: 'post',
+							url: '{{:U("Tests/del")}}',
+							data: 'id='+id+'&del=ok',
+							success: function(res){
+								if (res.status == 1) {
+									$(obj).parents("tr").remove();
+									layer.msg(res.info,{icon:6,time:1000});
+								} else {
+									layer.msg(res.info,{icon:5,time:1000});
+								}
+							},
+							error: function(res) {
+								layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
+							}
+						});
+					});
+				} else {//删除失败
+					layer.msg(res.info,{icon:5,time:1000});
+				}
+			},
+			error: function(res) {
+				layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
 			}
-		})
+		});
 	});
 }
 
@@ -113,14 +131,23 @@ function tests_del(obj,id){
 function stop(obj, id)
 {
 	layer.confirm('是否结束考试？',function(index){
-		$.post('{{:U("Tests/stop")}}', 'id='+id, function(res){
-			if (res.status == 1) {
-				$(obj).removeClass('btn-danger').addClass('btn-success').html('已结束').removeAttr('onclick');
-				layer.msg(res.info,{icon:6,time:1000});
-			} else {
-				layer.msg(res.info,{icon:5,time:1000});
+		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
+		$.ajax({
+			type: 'post',
+			url: '{{:U("Tests/stop")}}',
+			data: 'id='+id,
+			success: function(res){
+				if (res.status == 1) {
+					$(obj).removeClass('btn-danger').addClass('btn-success').html('已结束').removeAttr('onclick');
+					layer.msg(res.info,{icon:6,time:1000});
+				} else {
+					layer.msg(res.info,{icon:5,time:1000});
+				}
+			},
+			error: function(res) {
+				layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
 			}
-		})
+		});
 	});
 }
 
@@ -130,22 +157,31 @@ function stop(obj, id)
 function is_check(obj, id)
 {
 	layer.confirm('确认要改变审阅权限？',function(index){
-		$.post('{{:U("Tests/is_check")}}', 'id='+id+'&flag='+$(obj).attr('flag'), function(res){
-			if (res.status == 1) {
-				if ($(obj).attr('flag') == 1) {
-					$(obj).attr('flag', 2);
-					$(obj).attr('title', '关闭学员审阅权限');
-					$(obj).find('i').html('&#xe631;');
+		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
+		$.ajax({
+			type: 'post',
+			url: '{{:U("Tests/is_check")}}',
+			data: 'id='+id+'&flag='+$(obj).attr('flag'),
+			success: function(res){
+				if (res.status == 1) {
+					if ($(obj).attr('flag') == 1) {
+						$(obj).attr('flag', 2);
+						$(obj).attr('title', '关闭学员审阅权限');
+						$(obj).find('i').html('&#xe631;');
+					} else {
+						$(obj).attr('flag', 1);
+						$(obj).attr('title', '开启学员审阅权限');
+						$(obj).find('i').html('&#xe6e1;');
+					}
+					layer.msg(res.info,{icon:6,time:1000});
 				} else {
-					$(obj).attr('flag', 1);
-					$(obj).attr('title', '开启学员审阅权限');
-					$(obj).find('i').html('&#xe6e1;');
+					layer.msg(res.info,{icon:5,time:1000});
 				}
-				layer.msg(res.info,{icon:6,time:1000});
-			} else {
-				layer.msg(res.info,{icon:5,time:1000});
+			},
+			error: function(res) {
+				layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
 			}
-		})
+		});
 	});
 }
 
@@ -155,22 +191,31 @@ function is_check(obj, id)
 function is_score(obj, id)
 {
 	layer.confirm('确认要改变查看分数的权限？',function(index){
-		$.post('{{:U("Tests/is_score")}}', 'id='+id+'&flag='+$(obj).attr('flag'), function(res){
-			if (res.status == 1) {
-				if ($(obj).attr('flag') == 1) {
-					$(obj).attr('flag', 2);
-					$(obj).attr('title', '关闭学员查看权限');
-					$(obj).find('i').html('&#xe6dd;');
+		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
+		$.ajax({
+			type: 'post',
+			url: '{{:U("Tests/is_score")}}',
+			data: 'id='+id+'&flag='+$(obj).attr('flag'),
+			success: function(res){
+				if (res.status == 1) {
+					if ($(obj).attr('flag') == 1) {
+						$(obj).attr('flag', 2);
+						$(obj).attr('title', '关闭学员查看权限');
+						$(obj).find('i').html('&#xe6dd;');
+					} else {
+						$(obj).attr('flag', 1);
+						$(obj).attr('title', '开启学员查看权限');
+						$(obj).find('i').html('&#xe725;');
+					}
+					layer.msg(res.info,{icon:6,time:1000});
 				} else {
-					$(obj).attr('flag', 1);
-					$(obj).attr('title', '开启学员查看权限');
-					$(obj).find('i').html('&#xe725;');
+					layer.msg(res.info,{icon:5,time:1000});
 				}
-				layer.msg(res.info,{icon:6,time:1000});
-			} else {
-				layer.msg(res.info,{icon:5,time:1000});
+			},
+			error: function(res) {
+				layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
 			}
-		})
+		});
 	});
 }
 </script>

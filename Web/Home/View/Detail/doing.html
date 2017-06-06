@@ -22,7 +22,7 @@
 	{{:W('Tests/_tests', [$tests])}}
 
 	<br><br>
-	<button class="btn radius btn-primary">提交</button>
+	<button class="btn radius btn-primary" style="width:200px;height:60px;font-size:40px">提　交</button>
 </form>
 </block>
 
@@ -46,6 +46,7 @@
 function over()
 {
 	layer.confirm('考试结束才能返回，确定吗？', function(){
+		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
 		$.get('{{:U("Index/index")}}', function(res){
 			if (res.status == 1) {
 				layer.msg('考试正在进行中...');
@@ -74,6 +75,7 @@ $(function(){
 		submitHandler:function(form){
 			// return false;
 			layer.confirm('提交后不可更改，确定吗？', function(){
+				$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
 				$(form).ajaxSubmit({
 					success: function(res){
 						if (res.status == 1) {
@@ -90,6 +92,9 @@ $(function(){
 							//添加失败
 							layer.alert(res.info);
 						}
+					},
+					error: function(res) {
+						layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
 					}
 				});
 			})

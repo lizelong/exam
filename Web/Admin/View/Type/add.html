@@ -86,6 +86,7 @@ $(function(){
 			}
 		},
 		submitHandler:function(form){
+			$('input[type=submit]').prop('disabled', true).css('cursor', 'not-allowed');
 			$(form).ajaxSubmit({
 				success: function(res){
 					if (res.status == 1) {
@@ -97,6 +98,11 @@ $(function(){
 						//添加失败
 						layer.alert(res.info);
 					}
+					$('input[type=submit]').removeProp('disabled').css('cursor', 'pointer');
+				},
+				error: function(res){ 
+					layer.alert('服务器繁忙，请稍后再试~');
+					$('input[type=submit]').removeProp('disabled').css('cursor', 'pointer');
 				}
 			});
 		}

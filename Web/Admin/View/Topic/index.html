@@ -64,14 +64,23 @@ $(function(){
 /*题目删除*/
 function topic_del(obj,id){
 	layer.confirm('确认要删除吗？',function(index){
-		$.post('{{:U("Topic/del")}}', 'id='+id, function(res){
-			if (res.status == 1) {
-				$(obj).parents("tr").remove();
-				layer.msg(res.info,{icon:6,time:1000});
-			} else {
-				layer.msg(res.info,{icon:5,time:1000});
+		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
+		$.ajax({
+			type: 'post',
+			url: '{{:U("Topic/del")}}',
+			data: 'id='+id,
+			success: function(res){
+				if (res.status == 1) {
+					$(obj).parents("tr").remove();
+					layer.msg(res.info,{icon:6,time:1000});
+				} else {
+					layer.msg(res.info,{icon:5,time:1000});
+				}
+			},
+			error: function(res) {
+				layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
 			}
-		})
+		});
 	});
 }
 </script>

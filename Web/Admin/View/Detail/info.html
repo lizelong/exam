@@ -252,6 +252,7 @@ $(function(){
 	//ajax提交
 	$('#fom1').validate({
 		submitHandler:function(form){
+			$('button[form=fom1]').prop('disabled', true).css('cursor', 'not-allowed');
 			$(form).ajaxSubmit({
 				success: function(res){
 					if (res.status == 1) {
@@ -263,6 +264,11 @@ $(function(){
 						//重新审核失败
 						layer.alert(res.info);
 					}
+					$('input[type=submit]').removeProp('disabled').css('cursor', 'pointer');
+				},
+				error: function(res){ 
+					layer.alert('服务器繁忙，请稍后再试~');
+					$('input[type=submit]').removeProp('disabled').css('cursor', 'pointer');
 				}
 			});
 		}

@@ -1,3 +1,6 @@
 Document/
-Web/Runtime
+Web/Runtime/
 .tags
+.htaccess
+Web/Common/Conf/config.php
+phpMyAdmin/
