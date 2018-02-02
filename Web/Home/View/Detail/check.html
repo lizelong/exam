@@ -158,7 +158,7 @@
 	}
 
 </style>
-<script type="text/javascript" src="__VALIDATE__"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
 <script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/messages_zh.js"></script>
 <script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
 <script>
@@ -166,7 +166,6 @@
 function over()
 {
 	layer.confirm('考试结束才能返回，确定吗？', function(){
-		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
 		$.get('{{:U("Index/index")}}', function(res){
 			if (res.status == 1) {
 				layer.msg('考试正在进行中...');
@@ -187,7 +186,6 @@ $(function(){
 	$('#fom1').validate({
 		submitHandler:function(form){
 			layer.confirm('我们会记录你所审核的信息，确认提交吗？', function(){
-				$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
 				$(form).ajaxSubmit({
 					success: function(res){
 						if (res.status == 1) {
@@ -199,9 +197,6 @@ $(function(){
 							//添加失败
 							layer.alert(res.info);
 						}
-					},
-					error: function(res) {
-						layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
 					}
 				});
 			})

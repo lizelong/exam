@@ -1,0 +1,40 @@
+<table class="table table-border table-bordered table-hover table-bg table-sort">
+	<thead>
+		<tr class="text-c">
+			<th>ID</th>
+			<th width="200">用户名</th>
+			<th>所属班级</th>
+			<th>性别</th>
+			<th>添加时间</th>
+			<th>操作</th>
+		</tr>
+	</thead>
+	<tbody>
+	
+	<empty name="list">
+		<tr><td colspan="6">暂无数据</td></tr>
+	<else />
+	<foreach name="list" item="v">
+		<tr class="text-c">
+			<td>{{$v['id']}}</td>
+			<td><u style="cursor:pointer" class="text-primary" onclick="layer_show('个人信息', '{{:U('User/info', ['id'=>$v['id']])}}', '450', '650')">{{$v['username']}}</u></td>
+			<td>{{$v['class_id']}}</td>
+			<td>{{$v['sex']}}</td>
+			<td>{{$v['create_time']}}</td>
+			<td class="td-manage">
+				<a title="编辑" href="javascript:;" onclick="layer_show('编辑','{{:U('User/edit',['id'=>$v['id']])}}','','600')" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6df;</i></a> 
+			<if condition="$v['id'] neq $_SESSION['adminInfo']['id']">
+				<a title="删除" href="javascript:;" onclick="user_del(this,{{$v['id']}})" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a>
+			</if>
+
+				<!-- 查看错误情况 -->
+				<a title="查看错误情况" onclick="layer_show('错题列表','{{:U('Error/index', ['user'=>urlencode($v['username'])])}}','','600')" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe633;</i></a>
+			</td>
+		</tr>
+	</foreach>
+	</empty>
+
+	</tbody>
+</table>
+<br>
+{{$btn}}

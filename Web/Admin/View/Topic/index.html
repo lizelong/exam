@@ -5,9 +5,57 @@
 <section class="Hui-article-box">
 	<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> <a href="{{:U('Index/index')}}" class="maincolor">首页</a> <span class="c-gray en">&gt;</span> 题目列表<a class="btn btn-refresh btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
 	<div class="Hui-article">
+		<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onclick="layer_show('添加题目','{{:U('Topic/add')}}','','600')" class="btn btn-primary radius"><i class="Hui-iconfont">&#xe600;</i> 添加题目</a></span> </div>
 		<article class="cl pd-20">
-			<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onclick="layer_show('添加题目','{{:U('Topic/add')}}','','600')" class="btn btn-primary radius"><i class="Hui-iconfont">&#xe600;</i> 添加题目</a></span> </div>
-			<div class="mt-20">
+			<div class="text-l">
+				<form class="Huiform" action="" target="_self">
+					每页显示：
+					<span class="select-box radius" style="width:60px">
+					<select class="select" name="displayNum" size="1">
+						<option value="8">8</option>
+						<option {{$_GET['displayNum']==30?'selected':''}} value="30">30</option>
+						<option {{$_GET['displayNum']==100?'selected':''}} value="100">100</option>
+					</select>
+					</span>
+					　　
+					题目ID：
+					<span style="display:inline-block;width:60px">
+						<input type="text" name="id" class="input-text radius" value="{{$_GET['id']}}" />
+					</span>
+					　　
+					题目标题：
+					<span style="display:inline-block;width:200px">
+						<input type="text" name="title" class="input-text radius" value="{{$_GET['title']}}" />
+					</span>
+					　　
+					题目类型：
+					<span class="select-box" style="width:100px">
+					<select class="select" name="type" size="1">
+						<option value="">--请选择--</option>
+						<option {{$_GET['type']==1?'selected':''}} value="1">选择题</option>
+						<option {{$_GET['type']==2?'selected':''}} value="2">判断题</option>
+						<option {{$_GET['type']==3?'selected':''}} value="3">简答题</option>
+						<option {{$_GET['type']==4?'selected':''}} value="4">编程题</option>
+						<option {{$_GET['type']==5?'selected':''}} value="5">填空题</option>
+					</select>
+					</span>
+
+					<br><br>
+					所属分类：
+					<span class="select-box" style="width:230px">
+					<select class="select" name="type_id" size="1">
+						<option value="">--请选择--</option>
+						<foreach name="TypeList" item="v">
+							<option {{$_GET['type_id']==$v['id']?'selected':''}} {{$v['pid']==0?'disabled':''}} value="{{$v['id']}}">{{$v['name']}}</option>
+						</foreach>
+					</select>
+					</span>
+					　　
+					<button class="btn btn-primary radius">搜索</button>
+					<a href="{{:U('Topic/index')}}" class="btn btn-default radius">取消搜索</a>
+				</form>
+			</div>
+			<div class="mt-20" id="tableContent">
 				<table class="table table-border table-bordered table-hover table-bg table-sort" style="table-layout:fixed;">
 					<thead>
 						<tr class="text-c">
@@ -22,6 +70,9 @@
 					</thead>
 					<tbody>
 					
+					<empty name="list">
+						<tr><td colspan="6">暂无数据</td></tr>
+					<else />
 					<foreach name="list" item="v">
 						<tr class="text-c">
 							<td>{{$v['id']}}</td>
@@ -39,9 +90,12 @@
 							</td>
 						</tr>
 					</foreach>
+					</empty>
 
 					</tbody>
 				</table>
+				<br>
+				{{$btn}}
 			</div>
 		</article>
 	</div>
@@ -50,37 +104,20 @@
 
 
 <block name="js">
-<!-- 引入表格的js插件 -->
-<script type="text/javascript" src="__PUBLIC__/admin/lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
 
 <script type="text/javascript">
-$(function(){
-	$('.table-sort').dataTable({
-		"aaSorting": [[ 0, "desc" ]],//默认第几个排序
-	});
-});
 
 /*题目删除*/
 function topic_del(obj,id){
 	layer.confirm('确认要删除吗？',function(index){
-		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
-		$.ajax({
-			type: 'post',
-			url: '{{:U("Topic/del")}}',
-			data: 'id='+id,
-			success: function(res){
-				if (res.status == 1) {
-					$(obj).parents("tr").remove();
-					layer.msg(res.info,{icon:6,time:1000});
-				} else {
-					layer.msg(res.info,{icon:5,time:1000});
-				}
-			},
-			error: function(res) {
-				layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
+		$.post('{{:U("Topic/del")}}', 'id='+id, function(res){
+			if (res.status == 1) {
+				$(obj).parents("tr").remove();
+				layer.msg(res.info,{icon:6,time:1000});
+			} else {
+				layer.msg(res.info,{icon:5,time:1000});
 			}
-		});
+		})
 	});
 }
 </script>

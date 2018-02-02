@@ -7,10 +7,29 @@ class TopicController extends CommonController {
      */
     public function index(){
         $model = D('Topic');
+        //搜索条件
+        if (I('id')) $map['id'] = I('id');
+        if (I('type_id')) $map['type_id'] = I('type_id');
+        if (I('title')) $map['title'] = ['like', '%'.I('title').'%'];
+        if (I('type')) $map['type'] = I('type');
 
-        $arr = $model->getData();
+        //分页
+        $page = $this->page($model->where($map)->count());
+        
+        $arr = $model->where($map)->limit($page['limit'])->getData();
 
         $this->assign('list', $arr);
+        $this->assign('btn', $page['show']);//分页按钮
+
+        //ajax分页
+        if (IS_AJAX) {
+            $this->display('ajaxTopic');exit;
+        }
+
+        //所有分类信息，用于搜索
+        $arr = D('Type')->order('concat(path, id)')->getData();
+        $this->assign('TypeList', $arr);
+
         $this->display();
     }
 

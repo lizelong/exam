@@ -1,0 +1,73 @@
+<table class="table table-border table-bordered table-hover table-bg table-sort">
+	<thead>
+		<tr class="text-c">
+			<th width="6%">ID</th>
+			<th>试卷ID</th>
+			<th>考试班级</th>
+			<th>考试描述</th>
+			<th>考试类型</th>
+			<th width="10%">总分/总个数</th>
+			<th>状态</th>
+			<th width="6%">考试时间</th>
+			<th width="15%">添加时间</th>
+			<th style="width:20%">操作</th>
+		</tr>
+	</thead>
+	<tbody>
+	
+	<empty name="list">
+		<tr><td colspan="10">暂无数据</td></tr>
+	<else />
+	<foreach name="list" item="v">
+		<tr class="text-c">
+			<td>{{$v['id']}}</td>
+			<td><u style="cursor:pointer" class="text-primary" onclick="layer_show('试卷信息', '{{:U('Paper/info', ['id'=>$v['paper_id'],'tests'=>true])}}', '450', '650')">{{$v['paper_id']}}</u></td>
+			<td>{{$v['class_name']}}</td>
+			<td>{{$v['des']}}</td>
+			<td>{{$v['type']}}</td>
+			<td>{{$v['total']}}</td>
+			<td>
+				<if condition="$v['status'] eq 1">
+					<span onclick="stop(this, {{$v['id']}}, {{$v['start_by']}})" class="btn radius btn-danger">考试中</span>
+				<else />
+					<span class="btn radius btn-success">已结束</span>
+				</if>
+			</td>
+		<if condition="$v['status'] eq 1">
+			<td title="修改考试时间" style="cursor:pointer" onclick="layer_show('修改考试时间', '{{:U('Tests/editTime', ['tests_id'=>$v['id'], 'time'=>$v['time']])}}', 350, 180)">{{$v['time']}} 分钟</td>
+		<else />
+			<td title="考试已结束，无法修改">{{$v['time']}} 分钟</td>
+		</if>
+			<td>{{$v['create_time']}}</td>
+			<td class="td-manage">
+				<a title="查看详情" href="{{:U('Detail/index', ['id'=>$v['id'], 'class_id'=>$v['class_id']])}}" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe665;</i></a> 
+				<a title="删除" href="javascript:;" onclick="tests_del(this,{{$v['id']}})" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a>
+				
+				<!-- 是否开启审阅 -->
+				<if condition="$v['is_check'] eq 1">
+				<a title="开启学员审阅权限" href="javascript:;" onclick="is_check(this,{{$v['id']}})" flag="{{$v['is_check']}}" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e1;</i></a>
+				<else />
+				<a title="关闭学员审阅权限" href="javascript:;" onclick="is_check(this,{{$v['id']}})" flag="{{$v['is_check']}}" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe631;</i></a>
+				</if>
+
+				<!-- 是否查看分数 -->
+				<if condition="$v['is_score'] eq 1">
+				<a title="让学员可以看分" href="javascript:;" onclick="is_score(this,{{$v['id']}})" flag="{{$v['is_score']}}" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe725;</i></a>
+				<else />
+				<a title="让学员不能看分" href="javascript:;" onclick="is_score(this,{{$v['id']}})" flag="{{$v['is_score']}}" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6dd;</i></a>
+				</if>
+
+				<!-- 查看错误情况 -->
+				<a title="查看错误情况" onclick="layer_show('试卷信息', '{{:U('Error/index', ['tests_id'=>$v['id']])}}', 1200)" href="javascript:void(0)" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe633;</i></a>
+
+				<!-- 更新试卷并重新审核 -->
+				<a title="更新试卷并重新审核" onclick="tests_recheck({{$v['id']}}, {{$v['paper_id']}})" href="javascript:void(0)" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe68f;</i></a>
+			</td>
+		</tr>
+	</foreach>
+	</empty>
+
+	</tbody>
+</table>
+<br>
+{{$btn}}

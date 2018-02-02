@@ -21,6 +21,10 @@ class PaperController extends CommonController {
     public function info($id)
     {
         $info = D('Paper')->getAll($id);
+        if (empty($info['topics'])) {
+            echo '<h3>sorry，该试卷可能已被删除~</h3>';
+            exit;
+        }
         $this->assign('info', $info);
         //从考试列表过来的，不显示重新生成按钮
         $this->assign('tests', I('tests'));
@@ -75,12 +79,20 @@ class PaperController extends CommonController {
             if (strlen($type_id) > 0) {
                 $map['type_id'] = $type_id;
             }
+            $id = I('id');
+            if (strlen($id) > 0) {
+                $map['top.id'] = $id;
+            }
             // var_dump($map);exit;
-            $count = $model->where($map)->count();
-            $page = new \Think\Page($count, 10);
-            $arr = $model->where($map)->order('create_time desc')->limit($page->firstRow, $page->listRows)->getData();
+            $page = $this->page($model->where($map)->count());
+            $arr = $model->where($map)->limit($page['limit'])->getData();
             $this->assign('topicList', $arr);
-            $this->assign('btn', $page->show());
+            $this->assign('btn', $page['show']);
+
+            //ajax分页
+            if (IS_AJAX) {
+                $this->display('ajaxPaper');exit;
+            }
 
             //所有分类数据
             $typeList = D('Type')->order('concat(path,id)')->getData();

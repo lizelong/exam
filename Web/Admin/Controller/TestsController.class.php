@@ -4,10 +4,26 @@ namespace Admin\Controller;
 class TestsController extends CommonController {
     public function index(){
         $model = D('Tests');
+        //搜索条件
+        if (I('class_id')) $map['class_id'] = I('class_id');
+        if (I('des')) $map['des'] = ['like', '%'.I('des').'%'];
+        //分页
+        $page = $this->page($model->where($map)->count());
 
-        $arr = $model->getData();
-
+        $arr = $model->where($map)->limit($page['limit'])->getData();
+        
         $this->assign('list', $arr);
+        $this->assign('btn', $page['show']);//分页按钮
+
+        //ajax分页
+        if (IS_AJAX) {
+            $this->display('ajaxTests');exit;
+        }
+
+        //查出所有班级，用于搜索
+        $classList = M('class')->order('name desc')->select();
+        $this->assign('classList', $classList);
+
         $this->display();
     }
 
@@ -32,6 +48,7 @@ class TestsController extends CommonController {
                 $data['rule'] = $model->getRule($data);
                 //将试卷题目写入考试表做冗余
                 $data['info'] = D('Paper')->getAll($data['paper_id'], false);
+                $data['start_by'] = $_SESSION['adminInfo']['id'];
                 // var_dump($data);exit;
                 $res = $model->add($data);
                 if ($res) {
@@ -46,8 +63,19 @@ class TestsController extends CommonController {
             //查出当前要考的试卷信息
             $id = I('paper_id');
             if (!$id) $this->redirect('index');
-            $info = M('Paper')->find($id);
+            $p = M('Paper');
+            $info = $p->find($id);
             $info['topics'] = json_decode($info['topics'], true);
+
+            //过滤被删掉的题目ID
+            $model = M('Topic');
+            foreach ($info['topics'] as &$v) {
+                $v = $model->where(['id'=>['in', join($v, ',')]])->getField('id', true);
+            }
+            $p->save([
+                    'topics'=>json_encode($info['topics']),
+                    'id'=>$id
+                    ]);
 
             //查出所有的班级信息
             $classList = M('Class')->order('name desc')->select();
@@ -120,37 +148,6 @@ class TestsController extends CommonController {
     }
 
     /**
-     * 查看考试详情
-     * @param  int $id 要查看的考试ID
-     */
-    public function detail($id)
-    {
-        $model = D('Tests');
-        $arr = $model->getDetail();
-
-        //获取未开始考试的童鞋
-        $not = array_pop($arr);
-        // var_dump($not);exit;
-        $this->assign('not', $not);
-        $this->assign('list', $arr);
-        $this->display();
-    }
-
-    /**
-     * 强制提交
-     * @param  int $id 要强制结束的详情id
-     */
-    public function submitOk($id)
-    {
-        $res = M('Detail')->where(['id'=>$id])->save(['status'=>2]);
-        if ($res) {
-            $this->success('已强制提交');
-        } else {
-            $this->error('强制提交失败');
-        }
-    }
-
-    /**
      * 修改是否开放给学员审阅
      */
     public function is_check()
@@ -182,5 +179,83 @@ class TestsController extends CommonController {
                 $this->error('修改失败');
             }
         }        
+    }
+
+    /**
+     * 修改考试时间
+     */
+    public function editTime()
+    {
+        if (IS_POST) {
+            if (M('Tests')->save($_POST)) {
+                $this->success('修改成功');
+            } else {
+                $this->error('修改失败');
+            }
+        } else {
+            $this->assign('tests_id', I('tests_id'));
+            $this->assign('time', I('time'));
+            $this->display();
+        }
+    }
+
+    /**
+     * 更新当前次考试的试卷，并重新审核选择题和判断题
+     * @param  int $id 要更新的考试ID
+     */
+    public function recheck($id)
+    {
+        $data['info'] = D('Paper')->getAll($_POST['paper_id'], false);
+        $data['id'] = $id;
+        $t = M('Tests');
+        $res = $t->save($data);
+
+        //确实更新了试卷，才开始重新审核
+        if ($res) {
+            $tests = $t->find($id);
+            //还原试卷信息
+            $topics = json_decode($tests['info'], true);
+
+            //查出当前次考试的所有详情
+            $d = M('Detail');
+            $arr = $d->where(['tests_id'=>$id])->select();
+
+            foreach ($arr as $val) {
+                $answer = json_decode($val['answer'], true);
+                //判断选择题
+                $x_num = 0;
+                foreach ($topics[1] as $v) {
+                    $name = 'a_'.$v['id'];
+                    if (isset($answer[$name]) && strtolower($v['answer']) == strtolower($answer[$name])) {
+                        $x_num++;
+                    }
+                }
+
+                //判断判断题
+                $p_num = 0;
+                foreach ($topics[2] as $v) {
+                    $name = 'a_'.$v['id'];
+                    if (isset($answer[$name]) && strtolower($v['answer']) == strtolower($answer[$name])) {
+                        $p_num++;
+                    }
+                }
+
+                //判断是计数还是计分
+                if ($tests['type'] == 1) {
+                    //计数
+                    $score_auto = $x_num + $p_num;
+                } else {
+                    //格式化考试的计分规则
+                    $rule = json_decode($tests['rule'], true);
+                    $score_auto = $x_num * $rule[1][1];//选择题
+                    $score_auto += $p_num * $rule[2][1];//判断题
+                }
+                $d->save(['score_auto'=>$score_auto, 'id'=>$val['id']]);
+            }
+            
+            $this->success('更新成功~');
+        } else {
+            $this->error('更新失败，没有任何变化~');
+        }
     }
 }

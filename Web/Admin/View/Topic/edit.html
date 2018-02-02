@@ -84,7 +84,7 @@
 
 <block name="js">
 <!--请在下方写此页面业务相关的脚本-->
-<script type="text/javascript" src="__VALIDATE__"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
 <script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/messages_zh.js"></script>
 
 <script type="text/javascript">
@@ -168,7 +168,6 @@ $(function(){
 		onkeyup:false,		//键盘弹起就验证，默认为true
 		success:"valid",//验证通过后给label加class="valid"
 		submitHandler:function(form){
-			$('input[type=submit]').prop('disabled', true).css('cursor', 'not-allowed');
 			$(form).ajaxSubmit({
 				success: function(res){
 					if (res.status == 1) {
@@ -180,11 +179,6 @@ $(function(){
 						//修改失败
 						layer.alert(res.info);
 					}
-					$('input[type=submit]').removeProp('disabled').css('cursor', 'pointer');
-				},
-				error: function(res){ 
-					layer.alert('服务器繁忙，请稍后再试~');
-					$('input[type=submit]').removeProp('disabled').css('cursor', 'pointer');
 				}
 			});
 		}

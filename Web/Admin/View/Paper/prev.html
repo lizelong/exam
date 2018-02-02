@@ -187,7 +187,6 @@ function addPaper(obj)
 		layer.msg('请填写试卷描述');
 		return false;
 	}
-	$(obj).attr('onclick', null).css('cursor', 'not-allowed');
 	$.post('{{:U("Paper/add")}}', 'des='+val, function(res){
 		if (res.status == 1) {
 			//添加成功

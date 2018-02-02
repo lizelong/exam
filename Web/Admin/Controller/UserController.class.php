@@ -6,11 +6,35 @@ class UserController extends CommonController {
      * 用户列表
      */
     public function index(){
-        $model = D('User');
+        $map['is_del'] = 1;//未删除的
+        //搜索条件
+        if (I('id')) $map['u.id'] = I('id');
+        if (I('class_id')) $map['class_id'] = I('class_id');
+        if (I('username')) $map['username'] = ['like', '%'.I('username').'%'];
 
-        $arr = $model->getData();
+        //是否显示其他老师的信息
+        if ($_SESSION['adminInfo']['id'] != 1) {
+            $map['u.role|u.id'] = [['neq', 2], $_SESSION['adminInfo']['id'], '_multi'=>true];
+        }
 
+        $model = D('User')->alias('u');
+        //分页
+        $page = $this->page($model->where($map)->count());
+
+        //查用户数据
+        $arr = $model->where($map)->limit($page['limit'])->getData();
         $this->assign('list', $arr);
+        $this->assign('btn', $page['show']);//分页按钮
+
+        //ajax分页
+        if (IS_AJAX) {
+            $this->display('ajaxUser');exit;
+        }
+
+        //查出所有班级，用于搜索
+        $classList = M('class')->order('name desc')->select();
+        $this->assign('classList', $classList);
+
         $this->display();
     }
 
@@ -88,6 +112,10 @@ class UserController extends CommonController {
     public function info($id)
     {
         $info = M('User')->find($id);
+        if (empty($info)) {
+            echo '<h3>sorry，该用户可能已被删除~</h3>';
+            exit;
+        }
         $this->assign('info', $info);
         $this->display();
     }
@@ -99,8 +127,11 @@ class UserController extends CommonController {
     public function del($id)
     {
         if (IS_AJAX) {
-            $res = M('User')->delete($id);
+            // $res = M('User')->delete($id);
+            $res = M('User')->save(['id'=>$id, 'is_del'=>2, 'status'=>2]);
             if ($res) {
+                //顺带删除考试详情
+                M('Detail')->where(['user_id'=>$id])->delete();
                 $this->success('删除成功');
             } else {
                 $this->error('删除失败');

@@ -86,7 +86,6 @@ $(function(){
 /*班级删除*/
 function class_del(obj,id){
 	layer.confirm('确认要删除吗？',function(index){
-		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
 		$.post('{{:U("Class/del")}}', 'id='+id, function(res){
 			if (res.status == 1) {
 				$(obj).parents("tr").remove();
@@ -113,7 +112,6 @@ function class_del(obj,id){
 function is_reg(obj, id)
 {
 	layer.confirm('确认要改变注册状态？',function(index){
-		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
 		$.post('{{:U("Class/is_reg")}}', 'id='+id+'&reg='+$(obj).attr('reg'), function(res){
 			if (res.status == 1) {
 				if ($(obj).attr('reg') == 1) {

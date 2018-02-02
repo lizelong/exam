@@ -8,12 +8,16 @@
 
 <div class="cl pd-5 bg-1 bk-gray" style="position:fixed;width:100%;z-index:100">
 	<span class="">
-	考试描述：<span class="c-green f-26">{{$tests['des']}}</span>
-	考试类型：<span class="c-green f-26">{{$tests['type']==1?'计数':'计分'}}</span>
+		考试描述：<span class="c-green f-26">{{$tests['des']}}</span>
+		考试类型：<span class="c-green f-26">{{$tests['type']==1?'计数':'计分'}}</span>
+		考试时间：<span class="c-green f-26">{{$tests['time']}}分钟</span>
 	</span>
 	<button class="r btn btn-default radius" onclick="over()" style="margin-right:30px">返回首页</button>
-</div>
+	<button class="time r btn btn-danger radius" style="margin-right:30px">还剩<b>{{$tests['time']}}</b>分钟</button>
+	
+	<div class="r" id="online_box"></div>
 
+</div>
 <div style="height:50px"></div>
 <form id="fom1" action="__URL__/submit" method="post" style="padding:0 30px">
 	<input type="hidden" name="id" value="{{$tests['id']}}">
@@ -22,8 +26,10 @@
 	{{:W('Tests/_tests', [$tests])}}
 
 	<br><br>
-	<button class="btn radius btn-primary" style="width:200px;height:60px;font-size:40px">提　交</button>
+	<button class="btn radius btn-primary">　提　交　</button>
 </form>
+
+
 </block>
 
 
@@ -40,13 +46,66 @@
 
 </style>
 <script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
-<script type="text/javascript" src="__VALIDATE__"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
+<script type="text/javascript" src="__PUBLIC__/Home/js/doing.js"></script> 
+
 <script>
+var endtime = {{$tests['create_time']}} + {{$tests['time']}}*60;
+var now = {{:time()}};
+//计算结束时间
+function lastTime()
+{
+	//ajax获取服务器的时间，保证考试时间的统一
+	$.get('__URL__/getTime', function(res){
+		now = res;
+	});
+	var time = Math.ceil((endtime-now)/60);
+	if (time <= 0) {
+		//时间到，强制交卷
+		$.post('{{:U("Detail/submit")}}', $('form').serialize(), function(res){
+			console.log(res);
+			if (res.status == 1) {
+				layer.alert('时间到，你已被强制交卷', {closeBtn: 0}, function(){
+					parent.location.href = '';
+				});
+			} else {
+				layer.msg(res.info,{icon:5,time:1000});
+			}
+		})
+	}
+	$('.time b').html(time);
+}
+lastTime();
+setInterval(lastTime, 60000);
+
+//禁止复制和粘贴
+document.onkeydown = function(e)
+{
+	var e = e || event;
+	if (e.ctrlKey) {
+		if (e.keyCode == 67 || e.keyCode == 86) {
+			layer.msg('已禁止复制和粘贴功能');
+			return false;
+		}
+	}
+}
+document.oncopy = function(e)
+{
+	var e = e || event;
+	layer.msg('已禁止复制功能');
+	return false;
+}
+document.onpaste = function(e)
+{
+	var e = e || event;
+	layer.msg('已禁止粘贴功能');
+	return false;
+}
+
 //考试结束的情况下返回首页
 function over()
 {
 	layer.confirm('考试结束才能返回，确定吗？', function(){
-		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
 		$.get('{{:U("Index/index")}}', function(res){
 			if (res.status == 1) {
 				layer.msg('考试正在进行中...');
@@ -75,7 +134,6 @@ $(function(){
 		submitHandler:function(form){
 			// return false;
 			layer.confirm('提交后不可更改，确定吗？', function(){
-				$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
 				$(form).ajaxSubmit({
 					success: function(res){
 						if (res.status == 1) {
@@ -92,14 +150,35 @@ $(function(){
 							//添加失败
 							layer.alert(res.info);
 						}
-					},
-					error: function(res) {
-						layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
 					}
 				});
 			})
 		}
 	});
+})
+</script>
+
+<!-- socket.io -->
+<script src='//cdn.bootcss.com/socket.io/1.3.7/socket.io.js'></script>
+<script>
+$(function(){
+	var uid = {{$_SESSION['homeInfo']['id']}};
+	// 连接服务端
+    var socket = io('http://'+document.domain+':2120');
+    // 连接后登录
+    socket.on('connect', function(){
+    	socket.emit('login', uid);
+    });
+    // 后端推送来消息时
+    socket.on('new_msg', function(msg){
+         // $('#content').html('收到消息：'+msg);
+         // $('.notification.sticky').notify();
+        layer.msg(msg);
+    });
+    // 后端推送来在线数据时
+    socket.on('update_online_count', function(online_stat){
+        $('#online_box').html(online_stat);
+    });
 })
 </script>
 </block>

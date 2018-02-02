@@ -1,0 +1,46 @@
+<!-- 继承基本模板 -->
+<extend name="Index/index" />
+<!-- 弹窗用，不用顶部和菜单栏 -->
+<block name="_header"></block>
+<block name="_menu"></block>
+
+<block name="content">
+	<div class="mt-20">
+		<table class="table table-border table-bordered table-hover table-bg table-sort" style="table-layout:fixed;">
+			<thead>
+				<tr class="text-c">
+					<th width="5%">ID</th>
+					<th width="10%">题目ID</th>
+					<th width="10%">错误数量</th>
+					<th width="10%">操作</th>
+				</tr>
+			</thead>
+			<tbody>
+			
+			<empty name="list">
+				<tr>
+					<td colspan="4">暂无数据~</td>
+				</tr>
+			<else />
+			<foreach name="list" item="v">
+				<tr class="text-c">
+					<td>{{$v['id']}}</td>
+					<td style="cursor:pointer" title="点我查看详情" onclick="layer_show('题目详情', '{{:U('Topic/info', ['id'=>$v['topic_id']])}}')">{{$v['topic_id']}}</td>
+					<td>{{$v['nums']}}</td>
+					<td class="td-manage">
+						<a title="查看所有答错题者" onclick="layer_show('错题者','{{:U('Error/users',['topic_id'=>$v['topic_id'], 'tests_id'=>$tests_id])}}','300','500')" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe70c;</i></a>
+					</td>
+				</tr>
+			</foreach>
+			</empty>
+
+			</tbody>
+		</table>
+	</div>
+</block>
+
+
+<block name="js">
+<script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
+
+</block>

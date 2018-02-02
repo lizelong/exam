@@ -6,23 +6,57 @@
 	<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> <a href="{{:U('Index/index')}}" class="maincolor">首页</a> <span class="c-gray en">&gt;</span> 考试列表<a class="btn btn-refresh btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
 	<div class="Hui-article">
 		<article class="cl pd-20">
-			<div class="mt-20">
+			<div class="text-l">
+				<form class="Huiform" action="" target="_self">
+					每页显示：
+					<span class="select-box" style="width:60px">
+					<select class="select" name="displayNum" size="1">
+						<option value="8">8</option>
+						<option {{$_GET['displayNum']==30?'selected':''}} value="30">30</option>
+						<option {{$_GET['displayNum']==100?'selected':''}} value="100">100</option>
+					</select>
+					</span>
+
+					描述：
+					<span style="display:inline-block;width:100px">
+						<input type="text" name="des" class="input-text radius" value="{{$_GET['des']}}" />
+					</span>
+
+					考试班级：
+					<span class="select-box" style="width:230px">
+					<select class="select" name="class_id" size="1">
+						<option value="">--请选择--</option>
+						<foreach name="classList" item="v">
+							<option {{$_GET['class_id']==$v['id']?'selected':''}} value="{{$v['id']}}">{{$v['name']}}</option>
+						</foreach>
+					</select>
+					</span>
+
+					<button class="btn btn-primary radius">搜索</button>
+					<a href="{{:U('Tests/index')}}" class="btn btn-default radius">取消搜索</a>
+				</form>
+			</div>
+			<div class="mt-20" id="tableContent">
 				<table class="table table-border table-bordered table-hover table-bg table-sort">
 					<thead>
 						<tr class="text-c">
-							<th>ID</th>
+							<th width="6%">ID</th>
 							<th>试卷ID</th>
 							<th>考试班级</th>
 							<th>考试描述</th>
 							<th>考试类型</th>
-							<th>总分/总个数</th>
+							<th width="10%">总分/总个数</th>
 							<th>状态</th>
-							<th>添加时间</th>
-							<th>操作</th>
+							<th width="6%">考试时间</th>
+							<th width="15%">添加时间</th>
+							<th style="width:20%">操作</th>
 						</tr>
 					</thead>
 					<tbody>
 					
+					<empty name="list">
+						<tr><td colspan="10">暂无数据</td></tr>
+					<else />
 					<foreach name="list" item="v">
 						<tr class="text-c">
 							<td>{{$v['id']}}</td>
@@ -33,11 +67,16 @@
 							<td>{{$v['total']}}</td>
 							<td>
 								<if condition="$v['status'] eq 1">
-									<span onclick="stop(this, {{$v['id']}})" class="btn radius btn-danger">考试中</span>
+									<span onclick="stop(this, {{$v['id']}}, {{$v['start_by']}})" class="btn radius btn-danger">考试中</span>
 								<else />
 									<span class="btn radius btn-success">已结束</span>
 								</if>
 							</td>
+						<if condition="$v['status'] eq 1">
+							<td title="修改考试时间" style="cursor:pointer" onclick="layer_show('修改考试时间', '{{:U('Tests/editTime', ['tests_id'=>$v['id'], 'time'=>$v['time']])}}', 350, 180)">{{$v['time']}} 分钟</td>
+						<else />
+							<td title="考试已结束，无法修改">{{$v['time']}} 分钟</td>
+						</if>
 							<td>{{$v['create_time']}}</td>
 							<td class="td-manage">
 								<a title="查看详情" href="{{:U('Detail/index', ['id'=>$v['id'], 'class_id'=>$v['class_id']])}}" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe665;</i></a> 
@@ -58,13 +97,19 @@
 								</if>
 
 								<!-- 查看错误情况 -->
-								<a title="查看错误情况" href="{{:U('Error/index', ['tests_id'=>$v['id']])}}" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe633;</i></a>
+								<a title="查看错误情况" onclick="layer_show('试卷信息', '{{:U('Error/index', ['tests_id'=>$v['id']])}}', 1200)" href="javascript:void(0)" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe633;</i></a>
+
+								<!-- 更新试卷并重新审核 -->
+								<a title="更新试卷并重新审核" onclick="tests_recheck({{$v['id']}}, {{$v['paper_id']}})" href="javascript:void(0)" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe68f;</i></a>
 							</td>
 						</tr>
 					</foreach>
-
+					</empty>
+	
 					</tbody>
 				</table>
+				<br>
+				{{$btn}}
 			</div>
 		</article>
 	</div>
@@ -73,81 +118,64 @@
 
 
 <block name="js">
-<!-- 引入表格的js插件 -->
-<script type="text/javascript" src="__PUBLIC__/admin/lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
 
 <script type="text/javascript">
-$(function(){
-	$('.table-sort').dataTable({
-		"aaSorting": [[ 0, "desc" ]],//默认第几个排序
+
+/*更新并重审*/
+function tests_recheck(id, paper_id){
+	layer.confirm('确认要更新并重审吗？',function(index){
+		$.post('{{:U("Tests/recheck")}}', 'id='+id+'paper_id='+paper_id, function(res){
+			if (res.status == 1) {//更新成功
+				layer.msg(res.info,{icon:6,time:1000});
+			} else {//更新失败
+				layer.msg(res.info,{icon:5,time:1000});
+			}
+		})
 	});
-});
+}
 
 /*考试删除*/
 function tests_del(obj,id){
 	layer.confirm('确认要删除吗？',function(index){
-		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
-		$.ajax({
-			type: 'post',
-			url: '{{:U("Tests/del")}}',
-			data: 'id='+id,
-			success: function(res){
-				if (res.status == 1) {//删除成功
-					$(obj).parents("tr").remove();
-					layer.msg(res.info,{icon:6,time:1000});
-				} else if (res.status == 5) {//是否强制删除
-					layer.confirm(res.info, function(index){
-						$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
-						$.ajax({
-							type: 'post',
-							url: '{{:U("Tests/del")}}',
-							data: 'id='+id+'&del=ok',
-							success: function(res){
-								if (res.status == 1) {
-									$(obj).parents("tr").remove();
-									layer.msg(res.info,{icon:6,time:1000});
-								} else {
-									layer.msg(res.info,{icon:5,time:1000});
-								}
-							},
-							error: function(res) {
-								layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
-							}
-						});
-					});
-				} else {//删除失败
-					layer.msg(res.info,{icon:5,time:1000});
-				}
-			},
-			error: function(res) {
-				layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
+		$.post('{{:U("Tests/del")}}', 'id='+id, function(res){
+			if (res.status == 1) {//删除成功
+				$(obj).parents("tr").remove();
+				layer.msg(res.info,{icon:6,time:1000});
+			} else if (res.status == 5) {//是否强制删除
+				layer.confirm(res.info, function(index){
+				$.post('{{:U("Tests/del")}}', 'id='+id+'&del=ok', function(res){
+						if (res.status == 1) {
+							$(obj).parents("tr").remove();
+							layer.msg(res.info,{icon:6,time:1000});
+						} else {
+							layer.msg(res.info,{icon:5,time:1000});
+						}
+					})
+				});
+			} else {//删除失败
+				layer.msg(res.info,{icon:5,time:1000});
 			}
-		});
+		})
 	});
 }
 
 /*结束考试*/
-function stop(obj, id)
+function stop(obj, id, start_by, str)
 {
-	layer.confirm('是否结束考试？',function(index){
-		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
-		$.ajax({
-			type: 'post',
-			url: '{{:U("Tests/stop")}}',
-			data: 'id='+id,
-			success: function(res){
+	if (str === undefined) str = '是否结束考试？';
+	layer.confirm(str, function(index){
+		if (start_by != {{$_SESSION['adminInfo']['id']}} && start_by != 'enforceDel') {
+			stop(obj, id, 'enforceDel', '不是你开始的考试，是否强制删除？');
+		} else {
+			$.post('{{:U("Tests/stop")}}', 'id='+id, function(res){
 				if (res.status == 1) {
 					$(obj).removeClass('btn-danger').addClass('btn-success').html('已结束').removeAttr('onclick');
 					layer.msg(res.info,{icon:6,time:1000});
 				} else {
 					layer.msg(res.info,{icon:5,time:1000});
 				}
-			},
-			error: function(res) {
-				layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
-			}
-		});
+			})
+		}
 	});
 }
 
@@ -157,31 +185,22 @@ function stop(obj, id)
 function is_check(obj, id)
 {
 	layer.confirm('确认要改变审阅权限？',function(index){
-		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
-		$.ajax({
-			type: 'post',
-			url: '{{:U("Tests/is_check")}}',
-			data: 'id='+id+'&flag='+$(obj).attr('flag'),
-			success: function(res){
-				if (res.status == 1) {
-					if ($(obj).attr('flag') == 1) {
-						$(obj).attr('flag', 2);
-						$(obj).attr('title', '关闭学员审阅权限');
-						$(obj).find('i').html('&#xe631;');
-					} else {
-						$(obj).attr('flag', 1);
-						$(obj).attr('title', '开启学员审阅权限');
-						$(obj).find('i').html('&#xe6e1;');
-					}
-					layer.msg(res.info,{icon:6,time:1000});
+		$.post('{{:U("Tests/is_check")}}', 'id='+id+'&flag='+$(obj).attr('flag'), function(res){
+			if (res.status == 1) {
+				if ($(obj).attr('flag') == 1) {
+					$(obj).attr('flag', 2);
+					$(obj).attr('title', '关闭学员审阅权限');
+					$(obj).find('i').html('&#xe631;');
 				} else {
-					layer.msg(res.info,{icon:5,time:1000});
+					$(obj).attr('flag', 1);
+					$(obj).attr('title', '开启学员审阅权限');
+					$(obj).find('i').html('&#xe6e1;');
 				}
-			},
-			error: function(res) {
-				layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
+				layer.msg(res.info,{icon:6,time:1000});
+			} else {
+				layer.msg(res.info,{icon:5,time:1000});
 			}
-		});
+		})
 	});
 }
 
@@ -191,31 +210,22 @@ function is_check(obj, id)
 function is_score(obj, id)
 {
 	layer.confirm('确认要改变查看分数的权限？',function(index){
-		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
-		$.ajax({
-			type: 'post',
-			url: '{{:U("Tests/is_score")}}',
-			data: 'id='+id+'&flag='+$(obj).attr('flag'),
-			success: function(res){
-				if (res.status == 1) {
-					if ($(obj).attr('flag') == 1) {
-						$(obj).attr('flag', 2);
-						$(obj).attr('title', '关闭学员查看权限');
-						$(obj).find('i').html('&#xe6dd;');
-					} else {
-						$(obj).attr('flag', 1);
-						$(obj).attr('title', '开启学员查看权限');
-						$(obj).find('i').html('&#xe725;');
-					}
-					layer.msg(res.info,{icon:6,time:1000});
+		$.post('{{:U("Tests/is_score")}}', 'id='+id+'&flag='+$(obj).attr('flag'), function(res){
+			if (res.status == 1) {
+				if ($(obj).attr('flag') == 1) {
+					$(obj).attr('flag', 2);
+					$(obj).attr('title', '关闭学员查看权限');
+					$(obj).find('i').html('&#xe6dd;');
 				} else {
-					layer.msg(res.info,{icon:5,time:1000});
+					$(obj).attr('flag', 1);
+					$(obj).attr('title', '开启学员查看权限');
+					$(obj).find('i').html('&#xe725;');
 				}
-			},
-			error: function(res) {
-				layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
+				layer.msg(res.info,{icon:6,time:1000});
+			} else {
+				layer.msg(res.info,{icon:5,time:1000});
 			}
-		});
+		})
 	});
 }
 </script>

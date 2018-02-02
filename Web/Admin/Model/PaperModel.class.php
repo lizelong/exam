@@ -38,6 +38,7 @@ class PaperModel extends Model
 		$arr = $this->alias('p')
 					->field('p.*,u.username')
 					->join('left join __USER__ u on p.create_by=u.id')
+					->order('create_time desc')
 					->select();
 
 		foreach ($arr as &$v) {

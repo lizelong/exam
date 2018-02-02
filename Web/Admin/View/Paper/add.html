@@ -11,23 +11,23 @@
 
 		<span class="r">
 			<!-- 后期添加是否清空当前类型 -->
-			<span onclick="clear_type(1, this)" class="btn btn-secondary size-MINI radius">
+			<span onclick="clear_type(1)" class="btn btn-secondary size-MINI radius">
 				<span>选择题</span>
 				<b id="num1" style="color:#222">{{$nums.num1}}</b>
 			</span>
-			<span onclick="clear_type(2, this)" class="btn btn-secondary size-MINI radius">
+			<span onclick="clear_type(2)" class="btn btn-secondary size-MINI radius">
 				<span>判断题</span>
 				<b id="num2" style="color:#222">{{$nums.num2}}</b>
 			</span>
-			<span onclick="clear_type(3, this)" class="btn btn-secondary size-MINI radius">
+			<span onclick="clear_type(3)" class="btn btn-secondary size-MINI radius">
 				<span>简答题</span>
 				<b id="num3" style="color:#222">{{$nums.num3}}</b>
 			</span>
-			<span onclick="clear_type(4, this)" class="btn btn-secondary size-MINI radius">
+			<span onclick="clear_type(4)" class="btn btn-secondary size-MINI radius">
 				<span>编程题</span>
 				<b id="num4" style="color:#222">{{$nums.num4}}</b>
 			</span>
-			<span onclick="clear_type(5, this)" class="btn btn-secondary size-MINI radius">
+			<span onclick="clear_type(5)" class="btn btn-secondary size-MINI radius">
 				<span>填空题</span>
 				<b id="num5" style="color:#222">{{$nums.num5}}</b>
 			</span>
@@ -39,6 +39,19 @@
 		<article class="cl pd-20">
 			<div class="text-c">
 				<form class="Huiform" action="" target="_self">
+					每页显示：
+					<span class="select-box" style="width:60px">
+					<select class="select" name="displayNum" size="1">
+						<option value="8">8</option>
+						<option {{$_GET['displayNum']==30?'selected':''}} value="30">30</option>
+						<option {{$_GET['displayNum']==100?'selected':''}} value="100">100</option>
+					</select>
+					</span>
+					
+					题号：
+					<span style="display:inline-block;width:100px">
+						<input type="text" name="id" class="input-text radius" />
+					</span>
 					题目类型：
 					<span class="select-box" style="width:100px">
 					<select class="select" name="type" size="1">
@@ -63,7 +76,7 @@
 				</form>
 			</div>
 			
-			<div class="mt-20">
+			<div class="mt-20" id="tableContent">
 				<table class="table table-border table-bordered table-hover table-bg table-sort" style="table-layout:fixed;">
 					<thead>
 						<tr class="text-c">
@@ -125,11 +138,11 @@ $(function(){
 	//默认选中搜索条件
 	$('select[name=type] option[value={{$_GET["type"]}}]').prop('selected', true);
 	$('select[name=type_id] option[value={{$_GET["type_id"]}}]').prop('selected', true);
+	$('input[name=id]').val({{$_GET['id']}});
 });
 
 /*取消或添加到试卷*/
 function addTopic(obj, id, type){
-	$(obj).prop('disabled', true).css('cursor', 'not-allowed');
 	$.post('{{:U("Paper/addTopic")}}', 'id='+id+'&type='+type, function(res){
 		if (res.status == 1) {
 			layer.msg(res.info,{icon:1,time:800});
@@ -139,6 +152,7 @@ function addTopic(obj, id, type){
 			layer.msg(res.info,{icon:2,time:800});
 			$(obj).removeClass('btn-danger').addClass('btn-success').html('<i class="Hui-iconfont">&#xe600;</i> 添加');
 		}
+		console.log(res);
 
 		//修改当前题目类型的数量
 		$('#topicNum').html(res.nums.total);
@@ -147,8 +161,6 @@ function addTopic(obj, id, type){
 		$('#num3').html(res.nums.num3);
 		$('#num4').html(res.nums.num4);
 		$('#num5').html(res.nums.num5);
-
-		$(obj).removeProp('disabled').css('cursor', 'pointer');
 	})
 }
 
@@ -167,14 +179,9 @@ function prevPaper()
 /**
  * 清除当前分类的试题
  */
-function clear_type(type, obj)
+function clear_type(type)
 {
-	if (parseInt($(obj).find('b').html()) <= 0) {
-		layer.msg('请先添加此类型的题目');
-		return false;
-	}
 	layer.confirm('是否清空当前类型的试题？', function(){
-		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
 		$.post('{{:U("Paper/clearType")}}', 'type='+type, function(){
 			window.location.reload();
 		})

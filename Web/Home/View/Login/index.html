@@ -12,8 +12,9 @@
 <![endif]-->
 <link href="__PUBLIC__/Admin/static/h-ui/css/H-ui.min.css" rel="stylesheet" type="text/css" />
 <link href="__PUBLIC__/Admin/static/h-ui.admin/css/H-ui.login.css" rel="stylesheet" type="text/css" />
+<link href="__PUBLIC__/Admin/static/h-ui.admin/css/style.css" rel="stylesheet" type="text/css" />
 <link href="__PUBLIC__/Admin/lib/Hui-iconfont/1.0.8/iconfont.css" rel="stylesheet" type="text/css" />
-<title>后台登录 - xdl考试系统</title>
+<title>学员登录 - xdl考试系统</title>
 </head>
 <body>
 <input type="hidden" id="TenantId" name="TenantId" value="" />
@@ -25,7 +26,7 @@
 			<div class="row cl">
 				<label class="form-label col-xs-3"><i class="Hui-iconfont">&#xe60d;</i></label>
 				<div class="formControls col-xs-8">
-					<input id="" name="username" type="text" placeholder="账户" class="input-text size-L">
+					<input id="" name="username" type="text" placeholder="账户" autofocus class="input-text size-L">
 				</div>
 			</div>
 			<div class="row cl">
@@ -52,11 +53,11 @@
 </div>
 <div class="footer">&copy;Copyright xdl考试系统</div>
 
-<script type="text/javascript" src="__JQUERY__"></script>
-<script type="text/javascript" src="__VALIDATE__"></script> 
+<script type="text/javascript" src="__PUBLIC__/Admin/lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
 <script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/messages_zh.js"></script>
-<script type="text/javascript" src="__LAYER__"></script>
-<script type="text/javascript" src="__PUBLIC__/admin/static/h-ui/js/H-ui.min.js"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="__PUBLIC__/admin/static/h-ui/js/H-ui.js"></script> 
 <script type="text/javascript" src="__PUBLIC__/admin/static/h-ui.admin/js/H-ui.admin.page.js"></script>
 <script>
 $(function(){

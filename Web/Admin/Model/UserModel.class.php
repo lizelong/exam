@@ -42,8 +42,9 @@ class UserModel extends Model
 		//联查
 		$arr = $this
 				->alias('u')
-				->field('u.id,u.username,u.sex,u.create_time,c.name class_id')
+				->field('u.id,u.username,u.role,u.sex,u.create_time,c.name class_id')
 				->join('left join __CLASS__ c on u.class_id=c.id')
+				->order('u.role desc, u.create_time desc')
 				->select();
 
 		$sex = ['女', '男'];

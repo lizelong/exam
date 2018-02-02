@@ -7,9 +7,13 @@ class ErrorController extends CommonController {
      */
     public function index(){
         //查询出错的最多的前50条
-        // $arr = M()->query('select id,topic_id,sum(num) nums,users from __ERROR__ group by topic_id order by nums desc limit 50;');
+        // $arr = M()->query('select id,topic_id,sum(num) nums,users from __ERROR__ group by topic_id order by nums desc limit 50;');//效率略高，但是where条件不好写
 
+        //根据考试ID统计
         if (I('tests_id')) $map['tests_id'] = I('tests_id');
+        //根据用户姓名统计
+        if (I('user')) $map['users'] = ['like', '%,'.I('user').',%'];
+
         $arr = M('Error')
                 ->field('id,topic_id,sum(num) nums,users')
                 ->where($map)
@@ -20,7 +24,11 @@ class ErrorController extends CommonController {
 
         $this->assign('list', $arr);
         $this->assign('tests_id', I('tests_id'));
-        $this->display();
+        if (empty($_GET)) {
+            $this->display();
+        } else {
+            $this->display('_index');
+        }
     }
 
     /**

@@ -5,9 +5,41 @@
 <section class="Hui-article-box">
 	<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> <a href="{{:U('Index/index')}}" class="maincolor">首页</a> <span class="c-gray en">&gt;</span> 用户列表<a class="btn btn-refresh btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
 	<div class="Hui-article">
+		<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onclick="layer_show('添加用户','{{:U('User/add')}}','','400')" class="btn btn-primary radius"><i class="Hui-iconfont">&#xe600;</i> 添加用户</a></span> </div>
 		<article class="cl pd-20">
-			<div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a href="javascript:;" onclick="layer_show('添加用户','{{:U('User/add')}}','','400')" class="btn btn-primary radius"><i class="Hui-iconfont">&#xe600;</i> 添加用户</a></span> </div>
-			<div class="mt-20">
+			<div class="text-l">
+				<form class="Huiform" action="" target="_self">
+					每页显示：
+					<span class="select-box" style="width:60px">
+					<select class="select" name="displayNum" size="1">
+						<option value="8">8</option>
+						<option {{$_GET['displayNum']==30?'selected':''}} value="30">30</option>
+						<option {{$_GET['displayNum']==100?'selected':''}} value="100">100</option>
+					</select>
+					</span>
+					
+					用户ID：
+					<span style="display:inline-block;width:60px">
+						<input type="text" name="id" class="input-text radius" value="{{$_GET['id']}}" />
+					</span>
+					用户名：
+					<span style="display:inline-block;width:100px">
+						<input type="text" name="username" class="input-text radius" value="{{$_GET['username']}}" />
+					</span>
+					所属班级：
+					<span class="select-box" style="width:230px">
+					<select class="select" name="class_id" size="1">
+						<option value="">--请选择--</option>
+						<foreach name="classList" item="v">
+							<option {{$_GET['class_id']==$v['id']?'selected':''}} value="{{$v['id']}}">{{$v['name']}}</option>
+						</foreach>
+					</select>
+					</span>
+					<button class="btn btn-primary radius">搜索</button>
+					<a href="{{:U('User/index')}}" class="btn btn-default radius">取消搜索</a>
+				</form>
+			</div>
+			<div class="mt-20" id="tableContent">
 				<table class="table table-border table-bordered table-hover table-bg table-sort">
 					<thead>
 						<tr class="text-c">
@@ -21,8 +53,10 @@
 					</thead>
 					<tbody>
 					
+					<empty name="list">
+						<tr><td colspan="6">暂无数据</td></tr>
+					<else />
 					<foreach name="list" item="v">
-						<if condition="$v['role'] neq 2 or $v['id'] eq $_SESSION['adminInfo']['id']">
 						<tr class="text-c">
 							<td>{{$v['id']}}</td>
 							<td><u style="cursor:pointer" class="text-primary" onclick="layer_show('个人信息', '{{:U('User/info', ['id'=>$v['id']])}}', '450', '650')">{{$v['username']}}</u></td>
@@ -34,13 +68,18 @@
 							<if condition="$v['id'] neq $_SESSION['adminInfo']['id']">
 								<a title="删除" href="javascript:;" onclick="user_del(this,{{$v['id']}})" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe6e2;</i></a>
 							</if>
+
+								<!-- 查看错误情况 -->
+								<a title="查看错误情况" onclick="layer_show('错题列表','{{:U('Error/index', ['user'=>urlencode($v['username'])])}}','','600')" class="ml-5" style="text-decoration:none"><i class="Hui-iconfont">&#xe633;</i></a>
 							</td>
 						</tr>
-						</if>
 					</foreach>
+					</empty>
 
 					</tbody>
 				</table>
+				<br>
+				{{$btn}}
 			</div>
 		</article>
 	</div>
@@ -49,37 +88,21 @@
 
 
 <block name="js">
-<!-- 引入表格的js插件 -->
-<script type="text/javascript" src="__PUBLIC__/admin/lib/datatables/1.10.0/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
+
 
 <script type="text/javascript">
-$(function(){
-	$('.table-sort').dataTable({
-		"aaSorting": [[2], [ 0, "desc" ]],//默认第几个排序
-	});
-});
 
 /*用户删除*/
 function user_del(obj,id){
 	layer.confirm('确认要删除吗？',function(index){
-		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
-		$.ajax({
-			type: 'post',
-			url: '{{:U("User/del")}}',
-			data: 'id='+id,
-			success: function(res){
-				if (res.status == 1) {
-					$(obj).parents("tr").remove();
-					layer.msg(res.info,{icon:6,time:1000});
-				} else {
-					layer.msg(res.info,{icon:5,time:1000});
-				}
-			},
-			error: function(res) {
-				layer.msg('服务器繁忙，请稍后再试~',{icon:5,time:1000});
+		$.post('{{:U("User/del")}}', 'id='+id, function(res){
+			if (res.status == 1) {
+				$(obj).parents("tr").remove();
+				layer.msg(res.info,{icon:6,time:1000});
+			} else {
+				layer.msg(res.info,{icon:5,time:1000});
 			}
-		});
+		})
 	});
 }
 </script>

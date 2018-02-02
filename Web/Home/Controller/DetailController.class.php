@@ -134,7 +134,6 @@ class DetailController extends \Think\Controller {
         
         // var_dump($data);exit;
         $res = M('Detail')->save($data);
-        // echo M('Detail');
         if ($res) {
             $this->success('恭喜你，已经完成考试，请耐心等候考试结束。', U('Detail/doing'));
         } else {
@@ -236,5 +235,14 @@ class DetailController extends \Think\Controller {
                 $this->error('审阅失败');
             }
         }
+    }
+
+    /**
+     * 获取当前时间戳
+     */
+    public function getTime()
+    {
+        echo time();
+        exit;
     }
 }

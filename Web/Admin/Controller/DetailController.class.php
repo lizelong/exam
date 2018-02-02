@@ -166,7 +166,7 @@ class DetailController extends CommonController {
             ->where(['tests_id'=>$tests_id])
             ->select();
         foreach ($arr as &$v) {
-            $v['total_h'] = round(100/$total*($v['score_auto'] + $v['score_check']), 1);
+            $v['total_h'] = round(100/$total*($v['score_auto'] + $v['score_check']));
 
             unset($v['score_auto']);
             unset($v['score_check']);

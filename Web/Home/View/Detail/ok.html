@@ -28,14 +28,13 @@
 
 
 <block name="js">
-<script type="text/javascript" src="__VALIDATE__"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
 <script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
 <script>
 //考试结束的情况下返回首页
 function over()
 {
 	layer.confirm('考试结束才能返回，确定吗？', function(){
-		$('a.layui-layer-btn0').off('click').css('cursor', 'not-allowed');
 		$.get('{{:U("Index/index")}}', function(res){
 			if (res.status == 1) {
 				layer.msg('考试正在进行中...');

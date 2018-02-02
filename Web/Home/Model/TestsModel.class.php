@@ -11,9 +11,6 @@ class TestsModel extends Model
 	 */
 	public function getData()
 	{
-		//先查出当前用户的考试详情，得到所有的考试ID(后期有需求再改)
-		// $tests_id = join(',', M('Detail')->where(['user_id'=>$_SESSION['homeInfo']['id']])->getField('tests_id', true));
-		
 		$map['class_id'] = $_SESSION['homeInfo']['class_id'];
 		$arr = $this
 			->alias('t')

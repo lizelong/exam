@@ -61,9 +61,12 @@ class TestsModel extends Model
 	{
 		$arr = $this
 				->alias('t')
-				->field('t.*,c.name class_name')
+				->field('t.id, t.class_id, t.paper_id, t.type, t.rule, t.status, t.des, t.is_check, t.is_score, t.time, t.create_time, c.name class_name')
 				->join('left join __CLASS__ c on t.class_id=c.id')
+				->order('t.create_time desc')
 				->select();
+		// echo $this->_sql();
+        // echo 123;exit;
 
 		$type = [1=>'计数', '计分'];
 		foreach ($arr as &$v) {

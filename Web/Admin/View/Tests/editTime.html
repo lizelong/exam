@@ -1,0 +1,47 @@
+<center>
+<form action="__URL__/editTime" method="post">
+	<input type="hidden" name="id" value="{{$tests_id}}">
+	考试时间： <input type="text" name="time" value="{{$time}}" />
+	<br> <br>
+	<button>确认修改</button>
+</form>
+</center>
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery/1.9.1/jquery.min.js"></script> 
+<script>
+$('form').submit(function(){
+	if ($('input[name=time]').val() <= 0) {
+		alert('请输入正确的时间');
+		return false;
+	}
+
+	$.post('{{:U("Tests/editTime")}}', $('form').serialize(), function(res){
+		console.log(res);
+		if (res['status'] == 1) {
+			parent.location.href = '{{:U("Tests/index")}}';
+		} else {
+			alert('你什么也没改到~');
+		}
+	})
+
+	return false;
+});
+</script>
+
+<style>
+	button{
+		background:#5A98DD;
+		height:32px;
+		border:none;
+		color:#fff;
+		padding:5px 10px;
+		border-radius:3px;
+		cursor:pointer;
+	}
+	button:hover{
+		background:#2579AF;
+	}
+	input{
+		padding:8px 5px;
+	}
+
+</style>

@@ -55,7 +55,7 @@
 				    </for>
 			  	</div>
 			  	<div>
-					<span class="c-green f-20">正确答案：{{$v['answer']}}</span>
+					<span class="f-20 {{:strcasecmp($tests['answer']["a_{$v['id']}"], $v['answer'])?'c-red':'c-green'}}">正确答案：{{$v['answer']}}</span>
 			  	</div>
 			</li>
 			</foreach>
@@ -90,7 +90,7 @@
 				    </label>
 			  	</div>
 			  	<div>
-					<span class="c-green f-20">正确答案：{{$v['answer']}}</span>
+					<span class="{{:strcasecmp($tests['answer']["a_{$v['id']}"], $v['answer'])?'c-red':'c-green'}} f-20">正确答案：{{$v['answer']}}</span>
 			  	</div>
 			</li>
 			</foreach>
@@ -123,7 +123,7 @@
 				    	<span>完美</span>
 				    </label>
 					<label class="radio-box">
-				    	<input type="radio" value="0" name="fen_{{$v['id']}}" />
+				    	<input {{$tests['check_info']["fen_{$v['id']}"]==='0'?'checked':''}} type="radio" value="0" name="fen_{{$v['id']}}" />
 				    	<span>错了</span>
 				    </label>
 			  	</div>
@@ -239,7 +239,7 @@
 
 </style>
 <script type="text/javascript" src="__PUBLIC__/admin/lib/laypage/1.2/laypage.js"></script>
-<script type="text/javascript" src="__VALIDATE__"></script> 
+<script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/jquery.validate.js"></script> 
 <script type="text/javascript" src="__PUBLIC__/admin/lib/jquery.validation/1.14.0/messages_zh.js"></script>
 <script>
 $(function(){
@@ -252,7 +252,6 @@ $(function(){
 	//ajax提交
 	$('#fom1').validate({
 		submitHandler:function(form){
-			$('button[form=fom1]').prop('disabled', true).css('cursor', 'not-allowed');
 			$(form).ajaxSubmit({
 				success: function(res){
 					if (res.status == 1) {
@@ -264,11 +263,6 @@ $(function(){
 						//重新审核失败
 						layer.alert(res.info);
 					}
-					$('input[type=submit]').removeProp('disabled').css('cursor', 'pointer');
-				},
-				error: function(res){ 
-					layer.alert('服务器繁忙，请稍后再试~');
-					$('input[type=submit]').removeProp('disabled').css('cursor', 'pointer');
 				}
 			});
 		}
